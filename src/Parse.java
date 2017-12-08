@@ -89,7 +89,11 @@ public class Parse {
 				structure += "t"; // 抛出异常
 				continue;
 			}
-			
+			//return模块
+			if(line.trim().startsWith("return")) {
+				structure += "r";
+				continue;
+			}
 			// simple语句
 			if (!line.trim().startsWith("if") && !line.trim().startsWith("while")) {
 				type.push("simple");

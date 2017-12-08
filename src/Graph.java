@@ -78,10 +78,12 @@ public class Graph {
 		int WHILE_TEMP_ID = 1;
 		int DO_NO = 1;
 		int SWITCH_NO = 1;
+		int RETURN_NO = 1;
 		boolean isSwitch = false;
 		Stack<Integer> nodeStack = new Stack<>();
 		Stack<String> typeStack = new Stack<>();
 		Stack<Integer> switchStack = new Stack<>();
+		Stack<Integer> returnStack = new Stack<>();
 		String lastState = "";
 		nodes[0] = new Node(); // 开始结点
 		nodes[0].setInfo("Start");
@@ -89,9 +91,6 @@ public class Graph {
 		for (int i = 0, j = 0; i < structure.length(); i++) {
 			// 顺序语句,j指向当前最后的结点
 			if (structure.charAt(i) == 'P') {
-				/*
-				 * if (lastState.equals("while")) { //continue; }
-				 */
 
 				Node newNode = new Node(); // 新建一个结点,结点数目+1
 				nodeNumber++;
@@ -108,7 +107,17 @@ public class Graph {
 				}
 				nodes[++j] = newNode;
 				lastState = "";
-
+			} else if (structure.charAt(i) == 'r') {
+				//return 模块
+				Node newNode = new Node(); //新建return结点
+				newNode.setInfo("return" +RETURN_NO++);
+				nodeNumber++;
+				Arc arc =new Arc(newNode.getId());
+				nodes[j].setFirstArc(arc);   //上结点指向return结点
+				nodes[++j] = newNode;
+				returnStack.push(newNode.getId());  //return 结点入栈
+				lastState = "return";
+				
 			} else if (structure.charAt(i) == 'D') {
 				// 新建一个谓词结点，结点数目+1
 				Node newNode = new Node();
@@ -222,16 +231,23 @@ public class Graph {
 					nodes[++j] = newNode;
 					lastState = "switch";
 				}
+				
 			} else {
 				continue;
 			}
 		}
-
+		//出口结点
 		nodes[nodeNumber] = new Node();
 		Arc arc = new Arc(nodes[nodeNumber].getId());
 		nodes[nodeNumber - 1].setFirstArc(arc);
 		nodes[nodeNumber].setInfo("End");
 		nodeNumber++;
+		//所有return指向出口结点
+		for(;!returnStack.isEmpty();) {
+			int returnNode = returnStack.pop();
+			arc = new Arc(nodes[nodeNumber-1].getId()); //指向出口	
+			nodes[returnNode-1].setFirstArc(arc);
+		}
 		return graph;
 	}
 
