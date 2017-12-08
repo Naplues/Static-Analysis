@@ -8,24 +8,35 @@ public class Arc {
 	private static int ID = 0;
 	private int id; // 边标识
 	private int dest; // 边指向的结点
-	private String info; // 边信息
 	private Arc nextArc; // 边的下一条边
+
+	// 边属性
+	private String info; // 边信息
+	private String color; // 边的颜色
+	private String style; // 边的样式 bold
 
 	public Arc() {
 		this.id = Arc.ID++;
-		this.info = "Arc" + this.id;
 		this.nextArc = null;
+		
+		this.info = "";
+		this.color = "black"; // 默认黑色
+		this.style = "solid";
 	}
+
 	/**
 	 * 指定边的目标
+	 * 
 	 * @param dest
 	 */
 	public Arc(int dest) {
 		this();
 		this.dest = dest;
 	}
+
 	/**
 	 * 指定边的目标和下一条边
+	 * 
 	 * @param dest
 	 * @param nextArc
 	 */
@@ -66,4 +77,19 @@ public class Arc {
 		this.nextArc = nextArc;
 	}
 
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
+	public String getStyle() {
+		return style;
+	}
+
+	public void setStyle(String style) {
+		this.style = style;
+	}
 }

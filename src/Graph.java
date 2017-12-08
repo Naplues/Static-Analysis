@@ -47,16 +47,38 @@ public class Graph {
 	}
 
 	/**
-	 * 生成dot格式文件
+	 * 生成dot格式文件,效率有待提高
 	 */
 	public String outputGraph() {
 		String string = "";
 		Arc arc = null;
-		string += "digraph G {\n";
+		string += "digraph CFG {\n";
+
+		// 输出结点
+		for (int i = 0; i < nodeNumber; i++) {
+			string += "\"" + nodes[i].getInfo() + "\"";
+			string += "[";
+			string += "shape = " + nodes[i].getShape() + ", ";
+			//string += "style = filled, ";
+			string += "color = " + nodes[i].getFillColor() + ", ";
+			string += "]\n";
+		}
+		// 输出边
 		for (int i = 0; i < nodeNumber; i++) {
 			arc = nodes[i].getFirstArc();
-			for (; null != arc; arc = arc.getNextArc())
-				string += "\"" + nodes[i].getInfo() + "\" -> \"" + nodes[arc.getDest() - 1].getInfo() + "\"\n";
+			for (; null != arc; arc = arc.getNextArc()) {
+				// 起点->终点 [label = "info", fontColor = color]
+				string += "\"" + nodes[i].getInfo() + "\"";
+				string += " -> ";
+				string += "\"" + nodes[arc.getDest() - 1].getInfo() + "\" ";
+				string += "[";
+				string += "style = " + arc.getStyle() + ", ";
+				string += "label=\"" + arc.getInfo() + "\", ";
+				string += "fillcolor = " + arc.getColor() + ", ";
+				string += "color = " + arc.getColor() + ", ";
+				string += "fontcolor = " + arc.getColor();
+				string += "]\n";
+			}
 			string += "\n";
 		}
 		string += "}";
@@ -84,9 +106,12 @@ public class Graph {
 		Stack<String> typeStack = new Stack<>();
 		Stack<Integer> switchStack = new Stack<>();
 		Stack<Integer> returnStack = new Stack<>();
+		boolean entry = false;
 		String lastState = "";
 		nodes[0] = new Node(); // 开始结点
 		nodes[0].setInfo("Start");
+		nodes[0].setShape("Msquare");
+		nodes[0].setFillColor("green");
 		nodeNumber++;
 		for (int i = 0, j = 0; i < structure.length(); i++) {
 			// 顺序语句,j指向当前最后的结点
@@ -102,22 +127,28 @@ public class Graph {
 				} else {
 
 					Arc arc = new Arc(newNode.getId());// 边指向该结点
+					if (entry) {
+						arc.setInfo("Yes");
+						arc.setStyle("bold");
+						arc.setColor("green");
+						entry =false;
+					}
 					nodes[j].setFirstArc(arc);
 
 				}
 				nodes[++j] = newNode;
 				lastState = "";
 			} else if (structure.charAt(i) == 'r') {
-				//return 模块
-				Node newNode = new Node(); //新建return结点
-				newNode.setInfo("return" +RETURN_NO++);
+				// return 模块
+				Node newNode = new Node(); // 新建return结点
+				newNode.setInfo("return" + RETURN_NO++);
 				nodeNumber++;
-				Arc arc =new Arc(newNode.getId());
-				nodes[j].setFirstArc(arc);   //上结点指向return结点
+				Arc arc = new Arc(newNode.getId());
+				nodes[j].setFirstArc(arc); // 上结点指向return结点
 				nodes[++j] = newNode;
-				returnStack.push(newNode.getId());  //return 结点入栈
+				returnStack.push(newNode.getId()); // return 结点入栈
 				lastState = "return";
-				
+
 			} else if (structure.charAt(i) == 'D') {
 				// 新建一个谓词结点，结点数目+1
 				Node newNode = new Node();
@@ -135,20 +166,25 @@ public class Graph {
 				if (structure.charAt(i + 1) == '0') {
 					typeStack.push("if"); // if结点入栈
 					newNode.setInfo("if" + IF_NO++);
+					newNode.setShape("diamond"); // 菱形
 				} else if (structure.charAt(i + 1) == '2') {
 					typeStack.push("while");// while结点入栈
 					newNode.setInfo("while" + WHILE_NO++);
+					newNode.setShape("ellipse"); // 椭圆形
 				} else if (structure.charAt(i + 1) == '3') {
 					typeStack.push("do"); // do结点入栈
 					newNode.setInfo("do" + DO_NO++);
+					
 				}
-
+				entry = true;
 				nodes[++j] = newNode;
 
 			} else if (structure.charAt(i) == 'C') {
 				// switch谓词结点
 				Node newNode = new Node();
 				newNode.setInfo("switch" + SWITCH_NO++);
+				newNode.setShape("octagon"); // 八边形
+				newNode.setFillColor("lightgreen");
 				nodeNumber++;
 				Arc arc = new Arc(newNode.getId()); // 指向谓词结点
 				nodes[j].setFirstArc(arc);
@@ -171,11 +207,15 @@ public class Graph {
 					newNode.setInfo("if-temp" + IF_TEMP_NO++);
 					nodeNumber++;
 					Arc arc = new Arc(newNode.getId());
+
 					nodes[j].setFirstArc(arc);
 
 					// if结点指向新结点
 					int ifNode = nodeStack.pop();
 					arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
+					arc.setInfo("No");
+					arc.setStyle("bold");
+					arc.setColor("red");
 					nodes[ifNode - 1].setFirstArc(arc);
 
 					nodes[++j] = newNode; // 加入新结点
@@ -193,6 +233,9 @@ public class Graph {
 					newNode.setInfo("while-temp" + WHILE_TEMP_ID++);
 					nodeNumber++;
 					arc = new Arc(newNode.getId(), nodes[whileNode - 1].getFirstArc());
+					arc.setInfo("No");
+					arc.setStyle("bold");
+					arc.setColor("red");
 					nodes[whileNode - 1].setFirstArc(arc);
 
 					nodes[++j] = newNode;
@@ -231,22 +274,27 @@ public class Graph {
 					nodes[++j] = newNode;
 					lastState = "switch";
 				}
-				
+
 			} else {
 				continue;
 			}
 		}
-		//出口结点
+		// 出口结点
 		nodes[nodeNumber] = new Node();
 		Arc arc = new Arc(nodes[nodeNumber].getId());
 		nodes[nodeNumber - 1].setFirstArc(arc);
 		nodes[nodeNumber].setInfo("End");
+		nodes[nodeNumber].setShape("Msquare");
+		nodes[nodeNumber].setFillColor("pink");
 		nodeNumber++;
-		//所有return指向出口结点
-		for(;!returnStack.isEmpty();) {
+		// 所有return指向出口结点
+		for (; !returnStack.isEmpty();) {
 			int returnNode = returnStack.pop();
-			arc = new Arc(nodes[nodeNumber-1].getId()); //指向出口	
-			nodes[returnNode-1].setFirstArc(arc);
+			arc = new Arc(nodes[nodeNumber - 1].getId()); // 指向出口
+			arc.setInfo("Exit");
+			arc.setStyle("bold");
+			arc.setColor("orange");
+			nodes[returnNode - 1].setFirstArc(arc);
 		}
 		return graph;
 	}
