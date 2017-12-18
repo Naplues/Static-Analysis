@@ -1,18 +1,22 @@
 public boolean equals(Object x, Object y) throws HibernateException
 {
 	
-	if()
+	while()
 	{
-		a++;
 		if()
 		{
 			a++;
-			return;
+		}
+		while()
+		{
+			while()
+			{
+				a++;
+				if()
+				{
+					a++;
+				}
+			}
 		}
 	}
-	while()
-	{
-		a++;
-	}
-	
 }

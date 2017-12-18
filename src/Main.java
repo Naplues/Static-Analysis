@@ -13,12 +13,14 @@ public class Main {
 
 		
 		// 构造控制流图
+		System.out.println(structure);/*
 		graph.constructGraph(structure);
 		String res = graph.outputGraph();
 		System.out.println(res);
 		FileHandle.writeStringToFile("C:\\Users\\naplues\\Desktop\\a.dot", res);
+*/
+		Parse.getSubStructure(structure);
 
-		System.out.println(structure);
 	}
 
 }

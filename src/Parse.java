@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -52,13 +53,13 @@ public class Parse {
 					structure += ","; // 分支
 				continue;
 			}
-			//try catch 模块
-			if(line.trim().startsWith("try")) {
+			// try catch 模块
+			if (line.trim().startsWith("try")) {
 				type.push("try");
 				structure += "T";
 				continue;
 			}
-			if(line.trim().startsWith("catch") || line.trim().startsWith("}catch")) {
+			if (line.trim().startsWith("catch") || line.trim().startsWith("}catch")) {
 				type.push("catch");
 				structure += "H";
 				continue;
@@ -89,8 +90,8 @@ public class Parse {
 				structure += "t"; // 抛出异常
 				continue;
 			}
-			//return模块
-			if(line.trim().startsWith("return")) {
+			// return模块
+			if (line.trim().startsWith("return")) {
 				structure += "r";
 				continue;
 			}
@@ -121,14 +122,52 @@ public class Parse {
 
 	public static String modify(String origin) {
 		String structure = "";
-		for (int i = 0; i < origin.length()-1; i++) {
-			if(origin.charAt(i)=='D' && origin.charAt(i+1) == '0') {
-				
-			}
-			else {
+		for (int i = 0; i < origin.length() - 1; i++) {
+			if (origin.charAt(i) == 'D' && origin.charAt(i + 1) == '0') {
+
+			} else {
 				structure += origin.charAt(i);
 			}
 		}
+		return structure;
+	}
+
+	/**
+	 * 获取结构信息
+	 * 生成部分字串
+	 * 组合成完整字串
+	 * @param origin
+	 * @return
+	 */
+	public static List<String> getSubStructure(String origin) {
+		List<String> structure = new ArrayList<>();
+		Stack<String> stack = new Stack<>();
+
+		for (int i = 0; i < origin.length(); i++) {
+			if (origin.charAt(i) == 'S') {
+				i++;
+				continue;
+			}
+			if (origin.charAt(i) == 'D') {
+				if (origin.charAt(i + 1) == '0') {
+					stack.push("D0");
+					continue;
+				}
+				if (origin.charAt(i + 1) == '2') {
+					stack.push("D2");
+					continue;
+				}
+			}
+			if (origin.charAt(i) == '(') {
+				stack.push("(");
+				continue;
+			}
+			if (origin.charAt(i) == 'P') {
+				stack.push("P");
+				continue;
+			}
+		}
+
 		return structure;
 	}
 }
