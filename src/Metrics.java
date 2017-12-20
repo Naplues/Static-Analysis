@@ -76,10 +76,19 @@ public class Metrics {
 		int n = graph.getNodeNumber();
 		int e = graph.getArcNumber();
 		return e - n + 2;
+		
+	}
+	/**
+	 * 本质复杂度,未实现
+	 * @return
+	 */
+	public static int getEssentialComplexity(Graph graph) {
+		getCyclomaticNumber(graph);
+		return 0;
 	}
 
 	/********************************************************
-	 ************************ 辅助方法***************************
+	 ************************辅助方法***************************
 	 ********************************************************/
 
 	/**
