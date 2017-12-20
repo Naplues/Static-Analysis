@@ -11,7 +11,7 @@ public class Parse {
 	 * @return
 	 */
 	public static String generateStructure(List<String> lines) {
-		String structure = "S "; // 开始结点
+		String structure = ""; // 开始结点
 		Stack<String> type = new Stack<>();
 		for (String line : lines) {
 			if (line.trim().startsWith("public") || line.trim().equals(""))
@@ -102,9 +102,7 @@ public class Parse {
 				type.pop();
 				continue;
 			}
-
 		}
-		structure += " E";
 		return structure;
 	}
 

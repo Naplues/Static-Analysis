@@ -1,25 +1,33 @@
 
+import java.util.List;
 import java.util.Stack;
 
 public class Graph {
 	// 结点
 	private Node[] nodes;
 	private int nodeNumber;
+	private int arcNumber;
 	private static int MAX_NODES_NUM = 1000;
 
 	public Graph() {
 		nodes = new Node[Graph.MAX_NODES_NUM];
 		this.setNodeNumber(0);
+		this.setArcNumber(0);
 	}
 
+	/**
+	 * 创建图
+	 * 
+	 * @param data
+	 */
 	public void createGraph(int[][] data) {
 		for (int i = 0; i < Graph.MAX_NODES_NUM; i++) {
 			nodes[i] = new Node();
 		}
 		Arc arc = null;
 		for (int[] d : data) {
-			int s = d[0] - 1; // 索引-1
-			int e = d[1];
+			int s = d[0] - 1; // 开始索引-1
+			int e = d[1]; // 结束标识不用-1
 			arc = new Arc(e); // 设置终点e
 			arc.setNextArc(nodes[s].getFirstArc()); // 头插法
 			nodes[s].setFirstArc(arc);
@@ -29,6 +37,21 @@ public class Graph {
 			if (e > nodeNumber)
 				nodeNumber = e + 1;
 		}
+	}
+
+	/**
+	 * 创建图
+	 * 
+	 * @param data
+	 */
+	public void createGraph(List<Integer[]> data) {
+		int[][] a = new int[data.size()][];
+		for (int i = 0; i < data.size(); i++) {
+			a[i] = new int[2];
+			a[i][0] = data.get(i)[0];
+			a[i][1] = data.get(i)[1];
+		}
+		createGraph(a);
 	}
 
 	/**
@@ -43,6 +66,7 @@ public class Graph {
 				System.out.print(arc.getId() + "  ");
 				arc = arc.getNextArc();
 			}
+			System.out.println();
 		}
 	}
 
@@ -141,7 +165,7 @@ public class Graph {
 				} else {
 
 					Arc arc = new Arc(newNode.getId());// 边指向该结点
-					//if真分支入口
+					// if真分支入口
 					if (entry) {
 						arc.setInfo("Yes");
 						arc.setStyle("bold");
@@ -168,20 +192,20 @@ public class Graph {
 				// 新建一个谓词结点，结点数目+1
 				Node newNode = new Node();
 				nodeNumber++;
-				//紧跟在switch之后循环
+				// 紧跟在switch之后循环
 				if (isSwitch) {
 					int switchNode = nodeStack.peek();
 					Arc arc = new Arc(newNode.getId(), nodes[switchNode - 1].getFirstArc());
 					nodes[switchNode - 1].setFirstArc(arc);
 					isSwitch = false;
-				}else if(isIfElse) {
+				} else if (isIfElse) {
 					int ifNode = nodeStack.peek();
-					nodes[ifNode-1].setInfo("if-else" + IF_ELSE_NO++);
-					Arc arc=new Arc(newNode.getId(), nodes[ifNode-1].getFirstArc());
+					nodes[ifNode - 1].setInfo("if-else" + IF_ELSE_NO++);
+					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
 					arc.setInfo("No");
 					arc.setStyle("bold");
 					arc.setColor("red");
-					nodes[ifNode-1].setFirstArc(arc);
+					nodes[ifNode - 1].setFirstArc(arc);
 					isIfElse = false;
 				}
 				Arc arc = new Arc(newNode.getId()); // 指向谓词结点
@@ -227,7 +251,7 @@ public class Graph {
 			} else if (structure.charAt(i) == '|') {
 				// if-else分支
 				isIfElse = true;
-				//nodeStack.push(nodeStack.peek());  //if-else时栈顶两个元素相等
+				// nodeStack.push(nodeStack.peek()); //if-else时栈顶两个元素相等
 				ifStack.push(nodes[j].getId()); // if-else真分支结尾
 
 			} else if (structure.charAt(i) == ')') {
@@ -243,12 +267,12 @@ public class Graph {
 					nodes[j].setFirstArc(arc);
 
 					if (ifStack.isEmpty()) {
-						//单分支if
+						// 单分支if
 						// if结点指向新结点
-						int ifNode = nodeStack.pop(); //谓词结点出栈
+						int ifNode = nodeStack.pop(); // 谓词结点出栈
 						/*
-						if(ifNode == nodeStack.peek())
-							nodeStack.pop();*/
+						 * if(ifNode == nodeStack.peek()) nodeStack.pop();
+						 */
 						arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
 						arc.setInfo("No");
 						arc.setStyle("bold");
@@ -256,11 +280,13 @@ public class Graph {
 						nodes[ifNode - 1].setFirstArc(arc);
 
 					} else {
-						//if-else双分支
-						//nodeStack.pop(); //谓词结点出栈
+						// if-else双分支
+						// nodeStack.pop(); //谓词结点出栈
 						arc = new Arc(newNode.getId());
+
 						nodes[ifStack.pop() - 1].setFirstArc(arc);
 						arc = new Arc(newNode.getId());
+
 						nodes[j].setFirstArc(arc);
 					}
 					nodes[++j] = newNode; // 加入新结点
@@ -271,8 +297,9 @@ public class Graph {
 
 					// 循环体尾部指向while结点
 					int whileNode = nodeStack.pop();
-					
+
 					Arc arc = new Arc(whileNode, nodes[j].getFirstArc());
+
 					nodes[j].setFirstArc(arc);
 
 					// while指向循环体后面的结点,辅助结点
@@ -280,6 +307,7 @@ public class Graph {
 					newNode.setInfo("while-temp" + WHILE_TEMP_ID++);
 					nodeNumber++;
 					arc = new Arc(newNode.getId(), nodes[whileNode - 1].getFirstArc());
+
 					arc.setInfo("No");
 					arc.setStyle("bold");
 					arc.setColor("red");
@@ -293,11 +321,13 @@ public class Graph {
 					Node newNode = new Node();
 					nodeNumber++;
 					Arc arc = new Arc(newNode.getId());
+
 					nodes[j].setFirstArc(arc);
 
 					// 循环体尾部指向do结点
 					int doNode = nodeStack.pop();
 					arc = new Arc(doNode, nodes[j].getFirstArc());
+
 					nodes[j].setFirstArc(arc);
 
 					nodes[++j] = newNode;
@@ -313,23 +343,24 @@ public class Graph {
 
 					for (; !switchStack.isEmpty();) {
 						Arc newArc = new Arc(newNode.getId());
+
 						nodes[switchStack.pop() - 1].setFirstArc(newArc);
 					}
 
 					Arc newArc = new Arc(newNode.getId());
+
 					nodes[j].setFirstArc(newArc);
 
 					nodes[++j] = newNode;
 					lastState = "switch";
 				}
 
-			} else {
-				continue;
-			}
+			} 
 		}
 		// 出口结点
 		nodes[nodeNumber] = new Node();
 		Arc arc = new Arc(nodes[nodeNumber].getId());
+
 		nodes[nodeNumber - 1].setFirstArc(arc);
 		nodes[nodeNumber].setInfo("End");
 		nodes[nodeNumber].setShape("Msquare");
@@ -339,6 +370,7 @@ public class Graph {
 		for (; !returnStack.isEmpty();) {
 			int returnNode = returnStack.pop();
 			arc = new Arc(nodes[nodeNumber - 1].getId()); // 指向出口
+
 			arc.setInfo("Exit");
 			arc.setStyle("bold");
 			arc.setColor("orange");
@@ -347,9 +379,25 @@ public class Graph {
 		return graph;
 	}
 
-	
-	
-	
+	/**
+	 * 画出CFG图
+	 */
+	public static void drawGraph(String filePath) {
+
+		String cmd = "cmd /c start  test.bat";
+		try {
+			Process ps = Runtime.getRuntime().exec(cmd);
+			ps.waitFor();
+			int i = ps.exitValue();
+			if (i == 0) {
+				System.out.println("执行成功");
+			} else {
+				System.out.println("执行失败");
+			}
+		} catch (Exception ioe) {
+			ioe.printStackTrace();
+		}
+	}
 	
 	public int getNodeNumber() {
 		return nodeNumber;
@@ -359,4 +407,15 @@ public class Graph {
 		this.nodeNumber = nodeNumber;
 	}
 
+	public int getArcNumber() {
+		Arc arc = null;
+		for (int i = 0; i < nodeNumber; i++)
+			for (arc = nodes[i].getFirstArc(); null != arc; arc = arc.getNextArc())
+				arcNumber++;
+		return arcNumber;
+	}
+
+	public void setArcNumber(int arcNumber) {
+		this.arcNumber = arcNumber;
+	}
 }

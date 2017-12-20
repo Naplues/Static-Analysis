@@ -1,6 +1,20 @@
 public void add(int a, int b)
 {
-	int c = a + b;
-	System.ut.println("c is " + c);
-	return c;
+	if() {
+		if() {
+			a++;
+		}
+		a++;
+		while() {
+			a++;
+		}
+	}
+	else {
+		if() {
+			do {
+				a++;
+			}while();
+		}
+	}
+	
 }
