@@ -1,4 +1,4 @@
-public void add(int a, int b)
+public void sample(int a, int b)
 {
 	if() {
 		if() {

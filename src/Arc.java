@@ -92,4 +92,10 @@ public class Arc {
 	public void setStyle(String style) {
 		this.style = style;
 	}
+	//设置边的属性
+	public void setAttributes(String info, String style, String color) {
+		this.setInfo(info);
+		this.setStyle(style);
+		this.setColor(color);
+	}
 }

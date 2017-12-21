@@ -1,54 +1,54 @@
 digraph CFG {
-"Start"[shape = Msquare, color = green, ]
-"if-else1"[shape = diamond, color = blue, ]
-"if2"[shape = diamond, color = blue, ]
-"Node 4"[shape = box, color = blue, ]
-"if-temp1"[shape = box, color = blue, ]
-"Node 6"[shape = box, color = blue, ]
-"while1"[shape = ellipse, color = blue, ]
-"Node 8"[shape = box, color = blue, ]
-"while-temp1"[shape = box, color = blue, ]
-"if3"[shape = diamond, color = blue, ]
-"do1"[shape = box, color = blue, ]
-"Node 12"[shape = box, color = blue, ]
-"Node 13"[shape = box, color = blue, ]
-"if-temp2"[shape = box, color = blue, ]
-"if-temp3"[shape = box, color = blue, ]
-"End"[shape = Msquare, color = pink, ]
-"Start" -> "if-else1" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 1  [shape = Msquare, color = green, label = "Start", ]
+ 2  [shape = diamond, color = blue, label = "if-else1", ]
+ 3  [shape = diamond, color = blue, label = "if2", ]
+ 4  [shape = box, color = blue, label = "Node 4", ]
+ 5  [shape = box, color = blue, label = "if-temp1", ]
+ 6  [shape = box, color = blue, label = "Node 6", ]
+ 7  [shape = ellipse, color = blue, label = "while1", ]
+ 8  [shape = box, color = blue, label = "Node 8", ]
+ 9  [shape = box, color = blue, label = "while-temp1", ]
+ 10  [shape = diamond, color = blue, label = "if3", ]
+ 11  [shape = box, color = blue, label = "do1", ]
+ 12  [shape = box, color = blue, label = "Node 12", ]
+ 13  [shape = box, color = blue, label = "Node 13", ]
+ 14  [shape = box, color = blue, label = "if-temp2", ]
+ 15  [shape = box, color = blue, label = "if-temp3", ]
+ 16  [shape = Msquare, color = pink, label = "End", ]
+ 1  ->  2  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
-"if-else1" -> "if3" [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
-"if-else1" -> "if2" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 2  ->  10  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
+ 2  ->  3  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
-"if2" -> "if-temp1" [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
-"if2" -> "Node 4" [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 3  ->  5  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
+ 3  ->  4  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
 
-"Node 4" -> "if-temp1" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 4  ->  5  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
-"if-temp1" -> "Node 6" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 5  ->  6  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
-"Node 6" -> "while1" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 6  ->  7  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
-"while1" -> "while-temp1" [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
-"while1" -> "Node 8" [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 7  ->  9  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
+ 7  ->  8  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
 
-"Node 8" -> "while1" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 8  ->  7  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
-"while-temp1" -> "if-temp2" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 9  ->  14  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
-"if3" -> "if-temp3" [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
-"if3" -> "do1" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 10  ->  15  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
+ 10  ->  11  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
-"do1" -> "Node 12" [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 11  ->  12  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
 
-"Node 12" -> "do1" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
-"Node 12" -> "Node 13" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 12  ->  11  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 12  ->  13  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
-"Node 13" -> "if-temp2" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 13  ->  14  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
-"if-temp2" -> "if-temp3" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 14  ->  15  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
-"if-temp3" -> "End" [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 15  ->  16  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
 
 }

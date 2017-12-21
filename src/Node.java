@@ -24,6 +24,19 @@ public class Node {
 		firstArc = null;
 	}
 
+	public Node(String info) {
+		this();
+		this.info = info;
+	}
+
+	// 带参构造器
+	public Node(String info, String shape, String fillColor) {
+		this();
+		this.info = info;
+		this.shape = shape;
+		this.fillColor = fillColor;
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -62,5 +75,12 @@ public class Node {
 
 	public void setFillColor(String fillColor) {
 		this.fillColor = fillColor;
+	}
+
+	// 设置边的属性
+	public void setAttributes(String info, String shape, String fillColor) {
+		this.setInfo(info);
+		this.setShape(shape);
+		this.setFillColor(fillColor);
 	}
 }
