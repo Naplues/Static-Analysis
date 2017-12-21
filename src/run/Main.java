@@ -1,6 +1,6 @@
 package run;
-import graph.Graph;
-import metrics.Metrics;
+import analysis.graph.Graph;
+import analysis.metrics.Metrics;
 import utils.Structure;
 
 /**

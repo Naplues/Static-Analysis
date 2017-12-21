@@ -1,4 +1,5 @@
-package graph;
+package analysis.graph;
+
 /**
  * 结点定义
  * 

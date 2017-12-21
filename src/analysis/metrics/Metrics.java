@@ -1,8 +1,8 @@
-package metrics;
+package analysis.metrics;
 import java.util.List;
 import java.util.Stack;
 
-import graph.Graph;
+import analysis.graph.Graph;
 import utils.Structure;
 
 public class Metrics {

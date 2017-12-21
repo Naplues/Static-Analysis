@@ -1,4 +1,4 @@
-package graph;
+package analysis.graph;
 /**
  * 边定义
  * 

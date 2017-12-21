@@ -1,4 +1,4 @@
-package graph;
+package analysis.graph;
 import java.util.Stack;
 
 import utils.FileHandle;
