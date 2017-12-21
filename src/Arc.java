@@ -5,7 +5,7 @@
  *
  */
 public class Arc {
-	private static int ID = 0;
+	private static int ID = 0; //自增ID
 	private int id; // 边标识
 	private int dest; // 边指向的结点
 	private Arc nextArc; // 边的下一条边

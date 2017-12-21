@@ -1,82 +1,21 @@
-
 import java.util.Stack;
 
+/**
+ * 有向图结构：邻接链表
+ * 
+ * @author naplues
+ *
+ */
 public class Graph {
 	// 结点
-	private Node[] nodes;
-	private int nodeNumber;
-	private int arcNumber;
-	private static int MAX_NODES_NUM = 1000;
-
-	public Graph() {
-		nodes = new Node[Graph.MAX_NODES_NUM];
-		this.setNodeNumber(0);
-		this.setArcNumber(0);
-	}
-
-	public Graph(String structure) {
-		this();
-		this.constructGraph(structure);
-	}
+	private String name;
+	private Node[] nodes; // 结点列表
+	private int nodeNumber;// 结点数目
+	private int arcNumber;// 边数目
+	private static int MAX_NODES_NUM = 2000;
 
 	/**
-	 * 按结点遍历图
-	 */
-	public void printByNodes() {
-		Arc arc = null;
-		for (int i = 0; i < nodeNumber; i++) {
-			System.out.println(nodes[i].getId() + ":");
-			arc = nodes[i].getFirstArc();
-			while (null != arc) {
-				System.out.print(arc.getId() + "  ");
-				arc = arc.getNextArc();
-			}
-			System.out.println();
-		}
-	}
-
-	/**
-	 * 生成dot格式文件,效率有待提高
-	 */
-	public String outputGraph() {
-		String string = "";
-		Arc arc = null;
-		string += "digraph CFG {\n";
-
-		// 输出结点
-		for (int i = 0; i < nodeNumber; i++) {
-			string += " " + nodes[i].getId() + "  ";
-			string += "[";
-			string += "shape = " + nodes[i].getShape() + ", ";
-			// string += "style = filled, ";
-			string += "color = " + nodes[i].getFillColor() + ", ";
-			string += "label = \"" + nodes[i].getInfo() + "\", ";
-			string += "]\n";
-		}
-		// 输出边
-		for (int i = 0; i < nodeNumber; i++) {
-			arc = nodes[i].getFirstArc();
-			for (; null != arc; arc = arc.getNextArc()) {
-				// 起点->终点 [label = "info", fontColor = color]
-				string += " " + nodes[i].getId() + " ";
-				string += " -> ";
-				string += " " + nodes[arc.getDest() - 1].getId() + "  ";
-				string += "[";
-				string += "style = " + arc.getStyle() + ", ";
-				string += "label=\"" + arc.getInfo() + "\", ";
-				string += "fillcolor = " + arc.getColor() + ", ";
-				string += "color = " + arc.getColor() + ", ";
-				string += "fontcolor = " + arc.getColor();
-				string += "]\n";
-			}
-			string += "\n";
-		}
-		string += "}";
-		return string;
-	}
-
-	/**
-	 * 构造图
+	 * 构造图结构
 	 * 
 	 * @param structure
 	 * @return
@@ -165,10 +104,10 @@ public class Graph {
 				nodeStack.push(newNode.getId());
 				if (structure.charAt(i + 1) == '0') {
 					typeStack.push("if"); // if结点入栈
-					newNode.setAttributes("if" + IF_NO++,"diamond", "blue");//菱形
+					newNode.setAttributes("if" + IF_NO++, "diamond", "blue");// 菱形
 				} else if (structure.charAt(i + 1) == '2') {
 					typeStack.push("while");// while结点入栈
-					newNode.setAttributes("while" + WHILE_NO++,"ellipse", "blue");//椭圆形
+					newNode.setAttributes("while" + WHILE_NO++, "ellipse", "blue");// 椭圆形
 				} else if (structure.charAt(i + 1) == '3') {
 					typeStack.push("do"); // do结点入栈
 					newNode.setInfo("do" + DO_NO++);
@@ -293,6 +232,45 @@ public class Graph {
 	}
 
 	/**
+	 * 生成dot格式文件,效率有待提高
+	 */
+	public String outputGraph() {
+		String string = "";
+		Arc arc = null;
+		string += "digraph CFG {\n";
+		// 输出结点
+		for (int i = 0; i < nodeNumber; i++) {
+			string += " " + nodes[i].getId() + "  ";
+			string += "[";
+			string += "shape = " + nodes[i].getShape() + ", ";
+			// string += "style = filled, ";
+			string += "color = " + nodes[i].getFillColor() + ", ";
+			string += "label = \"" + nodes[i].getInfo() + "\", ";
+			string += "]\n";
+		}
+		// 输出边
+		for (int i = 0; i < nodeNumber; i++) {
+			arc = nodes[i].getFirstArc();
+			for (; null != arc; arc = arc.getNextArc()) {
+				// 起点->终点 [label = "info", fontColor = color]
+				string += " " + nodes[i].getId() + " ";
+				string += " -> ";
+				string += " " + nodes[arc.getDest() - 1].getId() + "  ";
+				string += "[";
+				string += "style = " + arc.getStyle() + ", ";
+				string += "label=\"" + arc.getInfo() + "\", ";
+				string += "fillcolor = " + arc.getColor() + ", ";
+				string += "color = " + arc.getColor() + ", ";
+				string += "fontcolor = " + arc.getColor();
+				string += "]\n";
+			}
+			string += "\n";
+		}
+		string += "}";
+		return string;
+	}
+
+	/**
 	 * 画出CFG图
 	 */
 	public static void drawGraph(String filePath) {
@@ -309,6 +287,42 @@ public class Graph {
 		} catch (Exception ioe) {
 			ioe.printStackTrace();
 		}
+	}
+
+	/**
+	 * 按结点遍历图
+	 */
+	public void printByNodes() {
+		Arc arc = null;
+		for (int i = 0; i < nodeNumber; i++) {
+			System.out.println(nodes[i].getId() + ":");
+			arc = nodes[i].getFirstArc();
+			while (null != arc) {
+				System.out.print(arc.getId() + "  ");
+				arc = arc.getNextArc();
+			}
+			System.out.println();
+		}
+	}
+
+	///////////////////////////// constructor getter and setter
+	public Graph() {
+		nodes = new Node[Graph.MAX_NODES_NUM];
+		this.setNodeNumber(0);
+		this.setArcNumber(0);
+	}
+
+	public Graph(String structure) {
+		this();
+		this.constructGraph(structure);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public int getNodeNumber() {
