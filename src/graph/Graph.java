@@ -1,4 +1,7 @@
+package graph;
 import java.util.Stack;
+
+import utils.FileHandle;
 
 /**
  * 有向图结构：邻接链表
@@ -279,6 +282,8 @@ public class Graph {
 			string += "\n";
 		}
 		string += "}";
+		FileHandle.writeStringToFile("out/test.dot", string);  //写入文件
+		Graph.drawGraph("");  //画出文件
 		return string;
 	}
 
@@ -292,9 +297,9 @@ public class Graph {
 			ps.waitFor();
 			int i = ps.exitValue();
 			if (i == 0) {
-				System.out.println("执行成功");
+				System.out.println("导出成功");
 			} else {
-				System.out.println("执行失败");
+				System.out.println("导出失败");
 			}
 		} catch (Exception ioe) {
 			ioe.printStackTrace();

@@ -1,8 +1,13 @@
+package utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-
-public class Parse {
+/**
+ * 结构字符串工具类
+ * @author naplues
+ *
+ */
+public class Structure {
 
 	/**
 	 * 构造结构字符串
@@ -10,7 +15,8 @@ public class Parse {
 	 * @param lines
 	 * @return
 	 */
-	public static String generateStructure(List<String> lines) {
+	public static String generateStructure(String filePath) {
+		List<String> lines = FileHandle.readFileToLines(filePath);
 		String structure = ""; // 开始结点
 		Stack<String> type = new Stack<>();
 		for (String line : lines) {
@@ -131,41 +137,117 @@ public class Parse {
 	}
 
 	/**
-	 * 获取结构信息
-	 * 生成部分字串
-	 * 组合成完整字串
-	 * @param origin
+	 * 判断字符串外层是否嵌套
+	 * 
+	 * @param structure
 	 * @return
 	 */
-	public static List<String> getSubStructure(String origin) {
-		List<String> structure = new ArrayList<>();
-		Stack<String> stack = new Stack<>();
-
-		for (int i = 0; i < origin.length(); i++) {
-			if (origin.charAt(i) == 'S') {
-				i++;
-				continue;
+	public static boolean isNest(String structure) {
+		char ch = '0';
+		Stack<Character> stack = new Stack<>();
+		for (int i = 0; i < structure.length(); i++) {
+			ch = structure.charAt(i);
+			if (ch == '(') {
+				stack.push(ch);
 			}
-			if (origin.charAt(i) == 'D') {
-				if (origin.charAt(i + 1) == '0') {
-					stack.push("D0");
-					continue;
+			if (ch == ')') {
+				stack.pop();
+				if (stack.isEmpty()) {
+					if (structure.length() - 1 == i)
+						return true;
+					else
+						return false;
 				}
-				if (origin.charAt(i + 1) == '2') {
-					stack.push("D2");
-					continue;
-				}
-			}
-			if (origin.charAt(i) == '(') {
-				stack.push("(");
-				continue;
-			}
-			if (origin.charAt(i) == 'P') {
-				stack.push("P");
-				continue;
 			}
 		}
+		return false;
+	}
 
-		return structure;
+	/**
+	 * 去掉外层嵌套
+	 * 
+	 * @param structure
+	 * @return
+	 */
+	public static String ReduceNest(String structure) {
+		return structure.substring(3, structure.length() - 1);
+	}
+
+	/**
+	 * 获取顺序实体
+	 * 
+	 * @param structure
+	 * @return
+	 */
+	public static List<String> getSubStructure(String structure) {
+		List<String> list = new ArrayList<>();
+		char ch = '0';
+		String temp = "";
+		Stack<Character> stack = new Stack<>();
+		for (int i = 0, start = 0; i < structure.length(); i++) {
+			ch = structure.charAt(i);
+
+			// 栈为空代表在奔曾,添加本层过程结点
+			if (stack.isEmpty()) {
+				if (ch == 'P') {
+					temp += ch;
+					start = i + 1;
+				}
+
+				if (ch == '|') {
+					start = i + 1;
+					continue;
+				}
+			}
+
+			if (ch == '(') {
+				if (!temp.equals("")) {
+					list.add(temp);
+					temp = "";
+				}
+				stack.push(ch);
+			}
+			if (ch == ')') {
+				stack.pop();
+				// 获得一个顺序实体
+				if (stack.isEmpty()) {
+					list.add(structure.substring(start, i + 1));
+					start = i + 1;
+				}
+			}
+			// 结尾的过程结点
+			if (i == structure.length() - 1 && !temp.equals("")) {
+				list.add(temp);
+				temp = "";
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 获取过程结点数目
+	 * 
+	 * @param structure
+	 * @return
+	 */
+	public static int getProcedureNumber(String structure) {
+		int number = 0;
+		for (int i = 0; i < structure.length(); i++) {
+			if (structure.charAt(i) != 'P')
+				return -1;
+			number++;
+		}
+		return number;
+	}
+
+	/**
+	 * 打印顺序实体
+	 * 
+	 * @param list
+	 */
+	public static void printStructure(List<String> list) {
+		for (String s : list) {
+			System.out.println(s);
+		}
 	}
 }

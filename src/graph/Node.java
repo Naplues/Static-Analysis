@@ -1,4 +1,4 @@
-
+package graph;
 /**
  * 结点定义
  * 
