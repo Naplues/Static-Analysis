@@ -127,6 +127,7 @@ public class Structure {
 			}
 		}
 		modifyLabels();// 修复标签
+		structure = modifyStructure(structure);
 		return structure;
 	}
 
@@ -142,10 +143,32 @@ public class Structure {
 		return structure;
 	}
 
-	public static String modifyStructure(String origin) {
-		String structure = "";
+	public static String modifyStructure(String s) {
+		StringBuffer structure = new StringBuffer(s);
+		Stack<Character> stack = new Stack<>();
+		for (int i = 0; i < structure.length(); i++) {
+			if (structure.charAt(i) == '|') {
+				System.out.println(i);
+				for (int j = i - 1; j >= 0; j--) {
+					if (structure.charAt(j) == ')') {
+						stack.push(')');
+						continue;
+					}
+					if (structure.charAt(j) == '(') {
+						if (!stack.isEmpty()) {
+							stack.pop();
+							continue;
+						} else {
+							// j-1处0改为1
+							structure.setCharAt(j - 1, '1');
+							break;
+						}
 
-		return structure;
+					}
+				}
+			}
+		}
+		return structure.toString();
 	}
 
 	/**
@@ -295,7 +318,7 @@ public class Structure {
 			line = line.replace("\\", "\\\\");
 			line = line.replace("'", "\'");
 			line = line.replace("\"", "\\\"");
-			
+
 			lines.set(i, line);
 		}
 	}

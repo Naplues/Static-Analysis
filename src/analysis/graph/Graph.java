@@ -122,6 +122,9 @@ public class Graph {
 				if (structure.charAt(i + 1) == '0') {
 					typeStack.push("if"); // if结点入栈
 					newNode.setAttributes(Structure.labels.get(k++), "diamond", "blue");// 菱形
+				} else if (structure.charAt(i + 1) == '1') {
+					typeStack.push("else");  //else
+					newNode.setAttributes(Structure.labels.get(k++), "diamond", "blue");// 菱形
 				} else if (structure.charAt(i + 1) == '2') {
 					typeStack.push("while");// while结点入栈
 					newNode.setAttributes(Structure.labels.get(k++), "ellipse", "blue");// 椭圆形
@@ -135,10 +138,24 @@ public class Graph {
 			}
 			// switch谓词结点, 八边形
 			if (structure.charAt(i) == 'C' && structure.charAt(i + 1) == 'A') {
+				
+				
 				Node newNode = new Node(Structure.labels.get(k++), "octagon", "lightgreen");
 				nodeNumber++;
-				Arc arc = new Arc(newNode.getId()); // 指向谓词结点
-				nodes[j].setFirstArc(arc);
+				
+				if(isIfElse) {
+					// else分支
+					int ifNode = nodeStack.peek();
+					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
+					arc.setAttributes("No", "bold", "red");
+					nodes[ifNode - 1].setFirstArc(arc);
+					isIfElse = false;
+				}
+				else {
+					Arc arc = new Arc(newNode.getId()); // 指向谓词结点
+					nodes[j].setFirstArc(arc);
+				}
+				
 				nodeStack.push(newNode.getId()); // switch结点入栈
 				typeStack.push("switch");
 				nodes[++j] = newNode;
@@ -168,24 +185,30 @@ public class Graph {
 					nodeNumber++;
 					Arc arc = new Arc(newNode.getId());
 					nodes[j].setFirstArc(arc);
-					// 单分支if
-					if (ifStack.isEmpty()) {
-						// if结点指向新结点
-						int ifNode = nodeStack.pop(); // 谓词结点出栈
-						arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
-						arc.setAttributes("No", "bold", "yellow");
-						nodes[ifNode - 1].setFirstArc(arc);
-					} else {
-						// if-else双分支
-						nodeStack.pop(); // 谓词结点出栈
-						arc = new Arc(newNode.getId());
-						nodes[ifStack.pop() - 1].setFirstArc(arc);
-						arc = new Arc(newNode.getId());
-						nodes[j].setFirstArc(arc);
-					}
+
+					// if结点指向新结点
+					int ifNode = nodeStack.pop(); // 谓词结点出栈
+					arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
+					arc.setAttributes("No", "bold", "red");
+					nodes[ifNode - 1].setFirstArc(arc);
+
 					nodes[++j] = newNode; // 加入新结点
 					lastState = "if";
 
+				} else if (type.equals("else")) {
+					Node newNode = new Node("if-temp" + IF_TEMP_NO++);
+					nodeNumber++;
+					Arc arc = new Arc(newNode.getId());
+					nodes[j].setFirstArc(arc);
+
+					nodeStack.pop(); // 谓词结点出栈
+					arc = new Arc(newNode.getId());
+					nodes[ifStack.pop() - 1].setFirstArc(arc);
+					arc = new Arc(newNode.getId());
+					nodes[j].setFirstArc(arc);
+
+					nodes[++j] = newNode; // 加入新结点
+					lastState = "else";
 				} else if (type.equals("while")) {
 					// while结点
 
@@ -225,7 +248,8 @@ public class Graph {
 					// 将switch结点全部退出
 					Node newNode = new Node("switch-temp" + SWITCH_TEMP_NO++);
 					nodeNumber++;
-					// int switchNode = nodeStack.pop();
+					nodeStack.pop();  //退出switch
+
 					for (; !switchStack.isEmpty();) {
 						Arc newArc = new Arc(newNode.getId());
 						nodes[switchStack.pop() - 1].setFirstArc(newArc);
@@ -237,7 +261,7 @@ public class Graph {
 				}
 			}
 		}
-		if(nodeStack.isEmpty()) {
+		if (nodeStack.isEmpty()) {
 			System.out.println("empty");
 		}
 		// 出口结点

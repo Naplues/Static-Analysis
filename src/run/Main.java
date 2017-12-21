@@ -23,7 +23,7 @@ public class Main {
 		// 输出控制流图
 		graph.outputGraph();
 		//输出所有度量值
-		Metrics.outputAllMetrics(graph, structure);
+		//Metrics.outputAllMetrics(graph, structure);
 
 	}
 
