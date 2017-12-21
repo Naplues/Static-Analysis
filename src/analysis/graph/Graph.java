@@ -1,7 +1,9 @@
 package analysis.graph;
+
 import java.util.Stack;
 
 import utils.FileHandle;
+import utils.Structure;
 
 /**
  * 有向图结构：邻接链表
@@ -25,13 +27,9 @@ public class Graph {
 	 */
 	public Graph constructGraph(String structure) {
 		Graph graph = new Graph();
-		int IF_NO = 1;
-		int IF_ELSE_NO = 1;
 		int IF_TEMP_NO = 1;
-		int WHILE_NO = 1;
 		int WHILE_TEMP_ID = 1;
-		int DO_NO = 1;
-		int SWITCH_NO = 1;
+		int DO_TEMP_ID = 1;
 		int SWITCH_TEMP_NO = 1;
 		int RETURN_NO = 1;
 		boolean isSwitch = false;
@@ -46,33 +44,37 @@ public class Graph {
 		String lastState = "";
 		nodes[0] = new Node("Start", "Msquare", "green"); // 开始结点
 		nodeNumber++;
-		for (int i = 0, j = 0; i < structure.length(); i++) {
+		// i: 字符串游标 j:结点游标 k:标签游标
+		for (int i = 0, j = 0, k = 0; i < structure.length(); i++) {
 			// 顺序语句,j指向当前最后的结点
 			if (structure.charAt(i) == 'P') {
 				Node newNode = new Node(); // 新建一个结点,结点数目+1
 				nodeNumber++;
+
 				if (isSwitch) {
 					int switchNode = nodeStack.peek();
 					Arc arc = new Arc(newNode.getId(), nodes[switchNode - 1].getFirstArc());
+					arc.setInfo(Structure.labels.get(k++));
 					nodes[switchNode - 1].setFirstArc(arc);
 					isSwitch = false;
+					
 				} else if (isIfElse) {
 					// else分支
 					int ifNode = nodeStack.peek();
-					nodes[ifNode - 1].setInfo("if-else" + IF_ELSE_NO++);
 					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
 					arc.setAttributes("No", "bold", "red");
 					nodes[ifNode - 1].setFirstArc(arc);
 					isIfElse = false;
 				} else {
 					Arc arc = new Arc(newNode.getId());// 边指向该结点
-					// if真分支入口
+					// if/while真分支入口
 					if (entry) {
 						arc.setAttributes("Yes", "bold", "green");
 						entry = false;
 					}
 					nodes[j].setFirstArc(arc);
 				}
+				newNode.setInfo(Structure.labels.get(k++));
 				nodes[++j] = newNode;
 				lastState = "";
 				continue;
@@ -98,36 +100,43 @@ public class Graph {
 				if (isSwitch) {
 					int switchNode = nodeStack.peek();
 					Arc arc = new Arc(newNode.getId(), nodes[switchNode - 1].getFirstArc());
+					arc.setInfo(Structure.labels.get(k++));
 					nodes[switchNode - 1].setFirstArc(arc);
 					isSwitch = false;
 				} else if (isIfElse) {
 					int ifNode = nodeStack.peek();
-					nodes[ifNode - 1].setInfo("if-else" + IF_ELSE_NO++);
+					nodes[ifNode - 1].setInfo(Structure.labels.get(k++));
 					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
 					arc.setAttributes("No", "bold", "red"); // 设置边的属性
 					nodes[ifNode - 1].setFirstArc(arc);
 					isIfElse = false;
 				}
 				Arc arc = new Arc(newNode.getId()); // 指向谓词结点
+				// if/while真分支入口
+				if (entry) {
+					arc.setAttributes("Yes", "bold", "green");
+					entry = false;
+				}
 				nodes[j].setFirstArc(arc);
 				nodeStack.push(newNode.getId());
+
 				if (structure.charAt(i + 1) == '0') {
 					typeStack.push("if"); // if结点入栈
-					newNode.setAttributes("if" + IF_NO++, "diamond", "blue");// 菱形
+					newNode.setAttributes(Structure.labels.get(k++), "diamond", "blue");// 菱形
 				} else if (structure.charAt(i + 1) == '2') {
 					typeStack.push("while");// while结点入栈
-					newNode.setAttributes("while" + WHILE_NO++, "ellipse", "blue");// 椭圆形
+					newNode.setAttributes(Structure.labels.get(k++), "ellipse", "blue");// 椭圆形
 				} else if (structure.charAt(i + 1) == '3') {
 					typeStack.push("do"); // do结点入栈
-					newNode.setInfo("do" + DO_NO++);
+					newNode.setInfo(Structure.labels.get(k++));
 				}
 				entry = true;
 				nodes[++j] = newNode;
 				continue;
 			}
 			// switch谓词结点, 八边形
-			if (structure.charAt(i) == 'C' && structure.charAt(i+1) == 'A') {
-				Node newNode = new Node("switch" + SWITCH_NO++, "octagon", "lightgreen");
+			if (structure.charAt(i) == 'C' && structure.charAt(i + 1) == 'A') {
+				Node newNode = new Node(Structure.labels.get(k++), "octagon", "lightgreen");
 				nodeNumber++;
 				Arc arc = new Arc(newNode.getId()); // 指向谓词结点
 				nodes[j].setFirstArc(arc);
@@ -150,7 +159,7 @@ public class Graph {
 				ifStack.push(nodes[j].getId()); // if-else真分支结尾
 				continue;
 			}
-			// 块结构尾部
+			/////////////////////////// 块结构尾部
 			if (structure.charAt(i) == ')') {
 				String type = typeStack.pop();
 				// 获取谓词结点类型
@@ -170,7 +179,6 @@ public class Graph {
 						arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
 						arc.setAttributes("No", "bold", "red");
 						nodes[ifNode - 1].setFirstArc(arc);
-
 					} else {
 						// if-else双分支
 						// nodeStack.pop(); //谓词结点出栈
@@ -188,6 +196,7 @@ public class Graph {
 					// 循环体尾部指向while结点
 					int whileNode = nodeStack.pop();
 					Arc arc = new Arc(whileNode, nodes[j].getFirstArc());
+					arc.setAttributes("", "dashed", "blue");
 					nodes[j].setFirstArc(arc);
 
 					// while指向循环体后面的结点,辅助结点
@@ -201,14 +210,16 @@ public class Graph {
 				} else if (type.equals("do")) {
 					// do结点
 					// 循环体后继结点
-					Node newNode = new Node();
+					Node newNode = new Node("do-temp" + DO_TEMP_ID++);
 					nodeNumber++;
 					Arc arc = new Arc(newNode.getId());
+					nodes[j].setShape("ellipse"); // do循环椭圆
 					nodes[j].setFirstArc(arc);
 
 					// 循环体尾部指向do结点
 					int doNode = nodeStack.pop();
 					arc = new Arc(doNode, nodes[j].getFirstArc());
+					arc.setAttributes("", "dashed", "blue");
 					nodes[j].setFirstArc(arc);
 					nodes[++j] = newNode;
 					lastState = "do";
@@ -229,7 +240,6 @@ public class Graph {
 					lastState = "switch";
 				}
 			}
-
 		}
 		// 出口结点
 		nodes[nodeNumber] = new Node("End", "Msquare", "pink");
@@ -282,8 +292,8 @@ public class Graph {
 			string += "\n";
 		}
 		string += "}";
-		FileHandle.writeStringToFile("out/test.dot", string);  //写入文件
-		Graph.drawGraph("");  //画出文件
+		FileHandle.writeStringToFile("out/test.dot", string); // 写入文件
+		Graph.drawGraph(""); // 画出文件
 		return string;
 	}
 

@@ -20,7 +20,7 @@ public class Node {
 	public Node() {
 		this.id = Node.ID++;
 		this.info = "Node " + this.id;
-		this.shape = "box"; // 结点形状默认为椭圆
+		this.shape = "box"; // 结点形状默认为盒形
 		this.fillColor = "blue";
 		firstArc = null;
 	}

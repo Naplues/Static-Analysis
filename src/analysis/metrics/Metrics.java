@@ -1,4 +1,5 @@
 package analysis.metrics;
+
 import java.util.List;
 import java.util.Stack;
 
@@ -6,6 +7,22 @@ import analysis.graph.Graph;
 import utils.Structure;
 
 public class Metrics {
+
+	/**
+	 * 输出所有度量
+	 * 
+	 * @param graph
+	 * @param structure
+	 */
+	public static void outputAllMetrics(Graph graph, String structure) {
+		int cnum = Metrics.getCyclomaticNumber(graph); // 圈复杂度
+		int depth = Metrics.getDepthOfNest(structure); // 嵌套深度
+		int num = Metrics.getNumberOfStatements(structure); // 语句数目
+
+		System.out.println("圈复杂度(路径)：  " + cnum);
+		System.out.println("最大嵌套深度：        " + depth);
+		System.out.println("语句数目：                " + num);
+	}
 
 	/**
 	 * 最大嵌套层数
@@ -38,9 +55,11 @@ public class Metrics {
 	 * @return
 	 */
 	public static int getNumberOfStatements(String structure) {
-		int number = Structure.getProcedureNumber(structure); // 获取纯过程语句数目
-		if (number != -1)
-			return number;
+		if (Structure.getSubStructure(structure).size() == 1) {
+			int number = Structure.getProcedureNumber(structure); // 获取纯过程语句数目
+			if (number != -1)
+				return number;
+		}
 		// 非过程实体
 		if (Structure.isNest(structure)) {
 			// 嵌套结构剥开嵌套层
@@ -91,5 +110,5 @@ public class Metrics {
 	public static int getEssentialComplexity(Graph graph) {
 		getCyclomaticNumber(graph);
 		return 0;
-	}	
+	}
 }

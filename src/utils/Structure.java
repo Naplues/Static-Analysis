@@ -1,13 +1,17 @@
 package utils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+
 /**
  * 结构字符串工具类
+ * 
  * @author naplues
  *
  */
 public class Structure {
+	public static List<String> labels = null; // 结构标签
 
 	/**
 	 * 构造结构字符串
@@ -17,15 +21,18 @@ public class Structure {
 	 */
 	public static String generateStructure(String filePath) {
 		List<String> lines = FileHandle.readFileToLines(filePath);
+		modifyLines(lines);
+		labels = new ArrayList<>(); // 结构标签
 		String structure = ""; // 开始结点
 		Stack<String> type = new Stack<>();
 		for (String line : lines) {
 			if (line.trim().startsWith("public") || line.trim().equals(""))
 				continue;
-			// 进入if谓词
+			// 进入if分支
 			if (line.trim().startsWith("if")) {
 				type.push("if"); // 谓词压栈
 				structure += "D0(";
+				labels.add(line);
 				continue;
 			}
 			// 进入else分支
@@ -35,28 +42,36 @@ public class Structure {
 				structure += "|";
 				continue;
 			}
+
 			// 进入while和for谓词
 			if (line.trim().startsWith("while") || line.trim().startsWith("for")) {
 				type.push("while"); // 谓词压栈
 				structure += "D2(";
+				labels.add(line);
 				continue;
 			}
 			// 进入repeat-until循环do
 			if (line.trim().startsWith("do")) {
 				type.push("do");
 				structure += "D3(";
+				labels.add(line);
 				continue;
+			}
+			if (line.trim().startsWith("}while")) {
+				labels.add(line);
 			}
 			// 进入switch 开关语句
 			if (line.trim().startsWith("switch")) {
 				type.push("switch");
 				structure += "CA(";
+				labels.add(line);
 				continue;
 			}
 			// 开关语句的case或default
 			if (line.trim().startsWith("case") || line.trim().startsWith("default")) {
 				if (!(structure.charAt(structure.length() - 1) == '('))
 					structure += ","; // 分支
+				labels.add(line);
 				continue;
 			}
 			// try catch 模块
@@ -80,7 +95,7 @@ public class Structure {
 				structure += "c";
 				continue;
 			}
-			// 分隔符
+			// 忽略分隔符
 			if (line.trim().equals("{")) {
 				continue;
 			}
@@ -97,8 +112,9 @@ public class Structure {
 				continue;
 			}
 			// return模块
-			if (line.trim().startsWith("return")) {
+			if (line.equals("return ")) {
 				structure += "r";
+				labels.add(line);
 				continue;
 			}
 			// simple语句
@@ -106,9 +122,11 @@ public class Structure {
 				type.push("simple");
 				structure += "P";
 				type.pop();
+				labels.add(line);
 				continue;
 			}
 		}
+		modifyLabels();// 修复标签
 		return structure;
 	}
 
@@ -143,7 +161,11 @@ public class Structure {
 	 * @return
 	 */
 	public static boolean isNest(String structure) {
+		if (structure.length() == 0)
+			return false;
 		char ch = '0';
+		if (structure.charAt(0) != 'D' && structure.charAt(0) != 'C')
+			return false;
 		Stack<Character> stack = new Stack<>();
 		for (int i = 0; i < structure.length(); i++) {
 			ch = structure.charAt(i);
@@ -198,6 +220,10 @@ public class Structure {
 					start = i + 1;
 					continue;
 				}
+				if (ch == ',') {
+					start = i + 1;
+					continue;
+				}
 			}
 
 			if (ch == '(') {
@@ -247,6 +273,41 @@ public class Structure {
 	 */
 	public static void printStructure(List<String> list) {
 		for (String s : list) {
+			System.out.println(s);
+		}
+	}
+
+	/**
+	 * 修复标签
+	 */
+	public static void modifyLabels() {
+		for (int i = 0; i < labels.size(); i++) {
+			String l = labels.get(i).trim();
+			if (l.startsWith("}"))
+				labels.set(i, l.substring(1, l.length()));
+			if (l.endsWith("{"))
+				labels.set(i, l.substring(0, l.length() - 1));
+		}
+	}
+
+	/**
+	 * 修复输入文本
+	 * 
+	 * @param lines
+	 */
+	public static void modifyLines(List<String> lines) {
+		for (int i = 0; i < lines.size(); i++) {
+			String line = lines.get(i);
+			line = line.replace("\"", "\\\"");
+			lines.set(i, line);
+		}
+	}
+
+	/**
+	 * 打印结构标签
+	 */
+	public static void printLabels() {
+		for (String s : labels) {
 			System.out.println(s);
 		}
 	}
