@@ -75,6 +75,7 @@ public class Metrics {
 	public static int getCyclomaticNumber(Graph graph) {
 		int n = graph.getNodeNumber();
 		int e = graph.getArcNumber();
+		System.out.println(n + " " + e);
 		return e - n + 2;
 		
 	}

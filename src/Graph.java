@@ -16,45 +16,6 @@ public class Graph {
 	}
 
 	/**
-	 * 创建图
-	 * 
-	 * @param data
-	 */
-	public void createGraph(int[][] data) {
-		for (int i = 0; i < Graph.MAX_NODES_NUM; i++) {
-			nodes[i] = new Node();
-		}
-		Arc arc = null;
-		for (int[] d : data) {
-			int s = d[0] - 1; // 开始索引-1
-			int e = d[1]; // 结束标识不用-1
-			arc = new Arc(e); // 设置终点e
-			arc.setNextArc(nodes[s].getFirstArc()); // 头插法
-			nodes[s].setFirstArc(arc);
-
-			if (s > nodeNumber)
-				nodeNumber = s + 1;
-			if (e > nodeNumber)
-				nodeNumber = e + 1;
-		}
-	}
-
-	/**
-	 * 创建图
-	 * 
-	 * @param data
-	 */
-	public void createGraph(List<Integer[]> data) {
-		int[][] a = new int[data.size()][];
-		for (int i = 0; i < data.size(); i++) {
-			a[i] = new int[2];
-			a[i][0] = data.get(i)[0];
-			a[i][1] = data.get(i)[1];
-		}
-		createGraph(a);
-	}
-
-	/**
 	 * 按结点遍历图
 	 */
 	public void printByNodes() {
@@ -286,7 +247,6 @@ public class Graph {
 
 						nodes[ifStack.pop() - 1].setFirstArc(arc);
 						arc = new Arc(newNode.getId());
-
 						nodes[j].setFirstArc(arc);
 					}
 					nodes[++j] = newNode; // 加入新结点
@@ -297,9 +257,7 @@ public class Graph {
 
 					// 循环体尾部指向while结点
 					int whileNode = nodeStack.pop();
-
 					Arc arc = new Arc(whileNode, nodes[j].getFirstArc());
-
 					nodes[j].setFirstArc(arc);
 
 					// while指向循环体后面的结点,辅助结点
@@ -307,12 +265,10 @@ public class Graph {
 					newNode.setInfo("while-temp" + WHILE_TEMP_ID++);
 					nodeNumber++;
 					arc = new Arc(newNode.getId(), nodes[whileNode - 1].getFirstArc());
-
 					arc.setInfo("No");
 					arc.setStyle("bold");
 					arc.setColor("red");
 					nodes[whileNode - 1].setFirstArc(arc);
-
 					nodes[++j] = newNode;
 					lastState = "while";
 				} else if (type.equals("do")) {
@@ -321,15 +277,12 @@ public class Graph {
 					Node newNode = new Node();
 					nodeNumber++;
 					Arc arc = new Arc(newNode.getId());
-
 					nodes[j].setFirstArc(arc);
 
 					// 循环体尾部指向do结点
 					int doNode = nodeStack.pop();
 					arc = new Arc(doNode, nodes[j].getFirstArc());
-
 					nodes[j].setFirstArc(arc);
-
 					nodes[++j] = newNode;
 					lastState = "do";
 
@@ -343,24 +296,19 @@ public class Graph {
 
 					for (; !switchStack.isEmpty();) {
 						Arc newArc = new Arc(newNode.getId());
-
 						nodes[switchStack.pop() - 1].setFirstArc(newArc);
 					}
 
 					Arc newArc = new Arc(newNode.getId());
-
 					nodes[j].setFirstArc(newArc);
-
 					nodes[++j] = newNode;
 					lastState = "switch";
 				}
-
 			} 
 		}
 		// 出口结点
 		nodes[nodeNumber] = new Node();
 		Arc arc = new Arc(nodes[nodeNumber].getId());
-
 		nodes[nodeNumber - 1].setFirstArc(arc);
 		nodes[nodeNumber].setInfo("End");
 		nodes[nodeNumber].setShape("Msquare");
@@ -370,7 +318,6 @@ public class Graph {
 		for (; !returnStack.isEmpty();) {
 			int returnNode = returnStack.pop();
 			arc = new Arc(nodes[nodeNumber - 1].getId()); // 指向出口
-
 			arc.setInfo("Exit");
 			arc.setStyle("bold");
 			arc.setColor("orange");
