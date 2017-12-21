@@ -1,54 +1,49 @@
 digraph CFG {
  1  [shape = Msquare, color = green, label = "Start", ]
  2  [shape = diamond, color = blue, label = "if-else1", ]
- 3  [shape = diamond, color = blue, label = "if2", ]
+ 3  [shape = box, color = blue, label = "Node 3", ]
  4  [shape = box, color = blue, label = "Node 4", ]
  5  [shape = box, color = blue, label = "if-temp1", ]
- 6  [shape = box, color = blue, label = "Node 6", ]
- 7  [shape = ellipse, color = blue, label = "while1", ]
- 8  [shape = box, color = blue, label = "Node 8", ]
- 9  [shape = box, color = blue, label = "while-temp1", ]
- 10  [shape = diamond, color = blue, label = "if3", ]
- 11  [shape = box, color = blue, label = "do1", ]
+ 6  [shape = diamond, color = blue, label = "if2", ]
+ 7  [shape = box, color = blue, label = "Node 7", ]
+ 8  [shape = box, color = blue, label = "if-temp2", ]
+ 9  [shape = octagon, color = lightgreen, label = "switch1", ]
+ 10  [shape = box, color = blue, label = "Node 10", ]
+ 11  [shape = box, color = blue, label = "Node 11", ]
  12  [shape = box, color = blue, label = "Node 12", ]
  13  [shape = box, color = blue, label = "Node 13", ]
- 14  [shape = box, color = blue, label = "if-temp2", ]
- 15  [shape = box, color = blue, label = "if-temp3", ]
- 16  [shape = Msquare, color = pink, label = "End", ]
+ 14  [shape = box, color = blue, label = "switch-temp1", ]
+ 15  [shape = Msquare, color = pink, label = "End", ]
  1  ->  2  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 2  ->  10  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
- 2  ->  3  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 2  ->  4  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
+ 2  ->  3  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
 
- 3  ->  5  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
- 3  ->  4  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 3  ->  5  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
  4  ->  5  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
  5  ->  6  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 6  ->  7  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 6  ->  8  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
+ 6  ->  7  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
 
- 7  ->  9  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
- 7  ->  8  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 7  ->  8  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 8  ->  7  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 8  ->  9  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 9  ->  14  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 9  ->  12  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 9  ->  10  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 10  ->  15  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
  10  ->  11  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 11  ->  12  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 11  ->  14  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 12  ->  11  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
  12  ->  13  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
  13  ->  14  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
  14  ->  15  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
-
- 15  ->  16  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
 
 }

@@ -44,7 +44,7 @@ public class Parse {
 			// 进入switch 开关语句
 			if (line.trim().startsWith("switch")) {
 				type.push("switch");
-				structure += "C(";
+				structure += "CA(";
 				continue;
 			}
 			// 开关语句的case或default

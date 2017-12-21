@@ -6,7 +6,7 @@
 public class Main {
 	public static void main(String[] args) {
 		// 通过结构字符串构造控制流图
-		String structure = Parse.generateStructure(FileHandle.readFileToLines("res/Test.java"));
+		String structure = Parse.generateStructure(FileHandle.readFileToLines("res/Test2.java"));
 		Graph graph = new Graph(structure);
 
 		// 输出控制流图

@@ -72,7 +72,10 @@ public class Graph {
 				}
 				nodes[++j] = newNode;
 				lastState = "";
-			} else if (structure.charAt(i) == 'r') {
+				continue;
+			}
+			// return 结构
+			if (structure.charAt(i) == 'r') {
 				// return 模块
 				Node newNode = new Node("return" + RETURN_NO++); // 新建return结点
 				nodeNumber++;
@@ -81,7 +84,10 @@ public class Graph {
 				nodes[++j] = newNode;
 				returnStack.push(newNode.getId()); // return 结点入栈
 				lastState = "return";
-			} else if (structure.charAt(i) == 'D') {
+				continue;
+			}
+			// 进入if/while结构
+			if (structure.charAt(i) == 'D') {
 				// 新建一个谓词结点，结点数目+1
 				Node newNode = new Node();
 				nodeNumber++;
@@ -114,30 +120,35 @@ public class Graph {
 				}
 				entry = true;
 				nodes[++j] = newNode;
-
-			} else if (structure.charAt(i) == 'C') {
-				// switch谓词结点, 八边形
+				continue;
+			}
+			// switch谓词结点, 八边形
+			if (structure.charAt(i) == 'C' && structure.charAt(i+1) == 'A') {
 				Node newNode = new Node("switch" + SWITCH_NO++, "octagon", "lightgreen");
 				nodeNumber++;
 				Arc arc = new Arc(newNode.getId()); // 指向谓词结点
 				nodes[j].setFirstArc(arc);
-
 				nodeStack.push(newNode.getId()); // switch结点入栈
 				typeStack.push("switch");
-
 				nodes[++j] = newNode;
 				isSwitch = true;
-			} else if (structure.charAt(i) == ',') {
-				// switch结点
+				continue;
+			}
+			// switch结点
+			if (structure.charAt(i) == ',') {
 				isSwitch = true;
 				switchStack.push(nodes[j].getId());
-
-			} else if (structure.charAt(i) == '|') {
-				// if-else分支
+				continue;
+			}
+			// if-else分支
+			if (structure.charAt(i) == '|') {
 				isIfElse = true;
 				// nodeStack.push(nodeStack.peek()); //if-else时栈顶两个元素相等
 				ifStack.push(nodes[j].getId()); // if-else真分支结尾
-			} else if (structure.charAt(i) == ')') {
+				continue;
+			}
+			// 块结构尾部
+			if (structure.charAt(i) == ')') {
 				String type = typeStack.pop();
 				// 获取谓词结点类型
 				if (type.equals("if")) {
@@ -215,6 +226,7 @@ public class Graph {
 					lastState = "switch";
 				}
 			}
+
 		}
 		// 出口结点
 		nodes[nodeNumber] = new Node("End", "Msquare", "pink");

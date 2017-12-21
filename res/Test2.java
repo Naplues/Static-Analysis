@@ -1,20 +1,13 @@
 public void sample(int a, int b)
 {
 	if() {
-		if() {
-			a++;
-		}
 		a++;
-		while() {
-			a++;
-		}
 	}
 	else {
-		if() {
-			do {
-				a++;
-			}while();
-		}
+		a++;
+	}
+	if() {
+		a++;
 	}
 	switch()
 	{
@@ -24,6 +17,6 @@ public void sample(int a, int b)
 	case 2:
 		a++;
 		//break;
-	}
+	} 
 	
 }

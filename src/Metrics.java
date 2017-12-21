@@ -54,7 +54,7 @@ public class Metrics {
 	}
 
 	/**
-	 * 圈复杂度   谓词结点数目+1
+	 * 圈复杂度 谓词结点数目+1
 	 * 
 	 * @param structure
 	 * @return
@@ -62,13 +62,15 @@ public class Metrics {
 	public static int getCyclomaticNumber(String structure) {
 		int number = 1;
 		for (int i = 0; i < structure.length() - 1; i++) {
-			if (structure.charAt(i) == 'D')
+			if (structure.charAt(i) == 'D' || structure.charAt(i) == 'C')
 				number++;
 		}
 		return number;
 	}
+
 	/**
-	 * 圈复杂度   e - n + 2
+	 * 圈复杂度 e - n + 2
+	 * 
 	 * @param graph
 	 * @return
 	 */
@@ -77,10 +79,12 @@ public class Metrics {
 		int e = graph.getArcNumber();
 		System.out.println(n + " " + e);
 		return e - n + 2;
-		
+
 	}
+
 	/**
 	 * 本质复杂度,未实现
+	 * 
 	 * @return
 	 */
 	public static int getEssentialComplexity(Graph graph) {
@@ -89,7 +93,7 @@ public class Metrics {
 	}
 
 	/********************************************************
-	 ************************辅助方法***************************
+	 ************************ 辅助方法***************************
 	 ********************************************************/
 
 	/**
@@ -158,17 +162,20 @@ public class Metrics {
 		Stack<Character> stack = new Stack<>();
 		for (int i = 0, start = 0; i < structure.length(); i++) {
 			ch = structure.charAt(i);
-			if (ch == '|') {
-				start = i + 1;
-				continue;
-			}
-			// 添加本层过程结点
+
+			// 栈为空代表在奔曾,添加本层过程结点
 			if (stack.isEmpty()) {
 				if (ch == 'P') {
 					temp += ch;
 					start = i + 1;
 				}
+
+				if (ch == '|') {
+					start = i + 1;
+					continue;
+				}
 			}
+
 			if (ch == '(') {
 				if (!temp.equals("")) {
 					list.add(temp);
