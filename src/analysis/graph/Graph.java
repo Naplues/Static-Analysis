@@ -57,7 +57,7 @@ public class Graph {
 					arc.setInfo(Structure.labels.get(k++));
 					nodes[switchNode - 1].setFirstArc(arc);
 					isSwitch = false;
-					
+
 				} else if (isIfElse) {
 					// else分支
 					int ifNode = nodeStack.peek();
@@ -105,7 +105,6 @@ public class Graph {
 					isSwitch = false;
 				} else if (isIfElse) {
 					int ifNode = nodeStack.peek();
-					nodes[ifNode - 1].setInfo(Structure.labels.get(k++));
 					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
 					arc.setAttributes("No", "bold", "red"); // 设置边的属性
 					nodes[ifNode - 1].setFirstArc(arc);
@@ -155,7 +154,6 @@ public class Graph {
 			// if-else分支
 			if (structure.charAt(i) == '|') {
 				isIfElse = true;
-				// nodeStack.push(nodeStack.peek()); //if-else时栈顶两个元素相等
 				ifStack.push(nodes[j].getId()); // if-else真分支结尾
 				continue;
 			}
@@ -170,18 +168,16 @@ public class Graph {
 					nodeNumber++;
 					Arc arc = new Arc(newNode.getId());
 					nodes[j].setFirstArc(arc);
-
+					// 单分支if
 					if (ifStack.isEmpty()) {
-						// 单分支if
 						// if结点指向新结点
 						int ifNode = nodeStack.pop(); // 谓词结点出栈
-						// if(ifNode == nodeStack.peek()) nodeStack.pop();
 						arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
-						arc.setAttributes("No", "bold", "red");
+						arc.setAttributes("No", "bold", "yellow");
 						nodes[ifNode - 1].setFirstArc(arc);
 					} else {
 						// if-else双分支
-						// nodeStack.pop(); //谓词结点出栈
+						nodeStack.pop(); // 谓词结点出栈
 						arc = new Arc(newNode.getId());
 						nodes[ifStack.pop() - 1].setFirstArc(arc);
 						arc = new Arc(newNode.getId());
@@ -240,6 +236,9 @@ public class Graph {
 					lastState = "switch";
 				}
 			}
+		}
+		if(nodeStack.isEmpty()) {
+			System.out.println("empty");
 		}
 		// 出口结点
 		nodes[nodeNumber] = new Node("End", "Msquare", "pink");

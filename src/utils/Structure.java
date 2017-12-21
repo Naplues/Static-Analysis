@@ -142,15 +142,9 @@ public class Structure {
 		return structure;
 	}
 
-	public static String modify(String origin) {
+	public static String modifyStructure(String origin) {
 		String structure = "";
-		for (int i = 0; i < origin.length() - 1; i++) {
-			if (origin.charAt(i) == 'D' && origin.charAt(i + 1) == '0') {
 
-			} else {
-				structure += origin.charAt(i);
-			}
-		}
 		return structure;
 	}
 
@@ -298,7 +292,10 @@ public class Structure {
 	public static void modifyLines(List<String> lines) {
 		for (int i = 0; i < lines.size(); i++) {
 			String line = lines.get(i);
+			line = line.replace("\\", "\\\\");
+			line = line.replace("'", "\'");
 			line = line.replace("\"", "\\\"");
+			
 			lines.set(i, line);
 		}
 	}
