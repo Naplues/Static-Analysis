@@ -57,6 +57,7 @@ public class Structure {
 				labels.add(line);
 				continue;
 			}
+			// 离开do-while循环
 			if (line.trim().startsWith("}while")) {
 				labels.add(line);
 			}
@@ -77,12 +78,12 @@ public class Structure {
 			// try catch 模块
 			if (line.trim().startsWith("try")) {
 				type.push("try");
-				structure += "T";
+				// structure += "T";
 				continue;
 			}
 			if (line.trim().startsWith("catch") || line.trim().startsWith("}catch")) {
 				type.push("catch");
-				structure += "H";
+				// structure += "H";
 				continue;
 			}
 			// break语句
@@ -100,8 +101,15 @@ public class Structure {
 				continue;
 			}
 			if (line.trim().startsWith("}")) {
+
 				if (type.size() != 0) {
-					type.pop(); // 谓词出栈
+					String t = type.pop(); // 谓词出栈
+					if (t.equals("try")) {
+						continue;
+					}
+					if (t.equals("catch")) {
+						continue;
+					}
 					structure += ")";
 				}
 				continue;
@@ -119,6 +127,9 @@ public class Structure {
 			}
 			// simple语句
 			if (!line.trim().startsWith("if") && !line.trim().startsWith("while")) {
+				if (type.peek().equals("catch")) {
+					continue;
+				}
 				type.push("simple");
 				structure += "P";
 				type.pop();
@@ -304,6 +315,11 @@ public class Structure {
 				labels.set(i, l.substring(1, l.length()));
 			if (l.endsWith("{"))
 				labels.set(i, l.substring(0, l.length() - 1));
+
+		}
+		for (int i = 0; i < labels.size(); i++) {
+			String l = labels.get(i).trim();
+			labels.set(i, l);
 		}
 	}
 
