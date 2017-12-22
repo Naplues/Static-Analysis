@@ -1,27 +1,18 @@
 digraph CFG {
  1  [shape = Msquare, color = green, label = "Start", ]
- 2  [shape = diamond, color = blue, label = "if(a==1) ", ]
- 3  [shape = diamond, color = blue, label = "if(a==12) ", ]
- 4  [shape = box, color = blue, label = "			a++;", ]
- 5  [shape = box, color = blue, label = "if-temp1", ]
- 6  [shape = box, color = blue, label = "		a++;", ]
- 7  [shape = ellipse, color = blue, label = "while(a==13) ", ]
- 8  [shape = box, color = blue, label = "			a++;", ]
- 9  [shape = box, color = blue, label = "while-temp1", ]
- 10  [shape = diamond, color = blue, label = "if(a==18) ", ]
- 11  [shape = box, color = blue, label = "do ", ]
- 12  [shape = ellipse, color = blue, label = "				a++;", ]
- 13  [shape = box, color = blue, label = "do-temp1", ]
- 14  [shape = box, color = blue, label = "if-temp2", ]
- 15  [shape = box, color = blue, label = "if-temp3", ]
- 16  [shape = Msquare, color = pink, label = "End", ]
+ 2  [shape = diamond, color = blue, label = "if(a>0) ", ]
+ 3  [shape = box, color = blue, label = "				a++;", ]
+ 4  [shape = box, color = blue, label = "if-temp1", ]
+ 5  [shape = box, color = blue, label = "do ", ]
+ 6  [shape = box, color = blue, label = "				a++;", ]
+ 7  [shape = ellipse, color = blue, label = "while(a==0);", ]
+ 8  [shape = Msquare, color = pink, label = "End", ]
  1  ->  2  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 2  ->  10  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
+ 2  ->  4  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
  2  ->  3  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
 
- 3  ->  5  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
- 3  ->  4  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 3  ->  4  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
  4  ->  5  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
@@ -29,26 +20,8 @@ digraph CFG {
 
  6  ->  7  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 7  ->  9  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
- 7  ->  8  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
-
- 8  ->  7  [style = dashed, label="", fillcolor = blue, color = blue, fontcolor = blue]
-
- 9  ->  15  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
-
- 10  ->  14  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
- 10  ->  11  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
-
- 11  ->  12  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
-
- 12  ->  11  [style = dashed, label="", fillcolor = blue, color = blue, fontcolor = blue]
- 12  ->  13  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
-
- 13  ->  14  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
-
- 14  ->  15  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
-
- 15  ->  16  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 7  ->  8  [style = dashed, label="", fillcolor = blue, color = blue, fontcolor = blue]
+ 7  ->  5  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
 
 
 }

@@ -1,20 +1,12 @@
 public void sample(int a, int b)
 {
-	if(a==1) {
-		if(a==12) {
-			a++;
-		}
-		a++;
-		while(a==13) {
-			a++;
-		}
-	}
-	else {
-		if(a==18) {
+
+			if(a>0) {
+				a++;
+			}
 			do {
 				a++;
-			}while(a==16);
-		}
-	}
-	
+			}while(a==0);
+
+
 }
