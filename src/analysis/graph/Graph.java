@@ -209,7 +209,7 @@ public class Graph {
 					
 					nodes[j].setFirstArc(arc);
 
-					nodeStack.pop(); // 谓词结点出栈
+					nodeStack.pop(); // 谓词结点出栈 
 					int ifNode = ifStack.pop();
 					//if真分支指向if-temp
 					arc = new Arc(newNode.getId());  
