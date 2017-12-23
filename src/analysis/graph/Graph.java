@@ -96,16 +96,7 @@ public class Graph {
 			}
 			// 循环中 break 结构
 			if (structure.charAt(i) == 'b') {
-				Node newNode = new Node("break" + BREAK_NO++);// 新建一个break结点
-				nodeNumber++;
-				Arc arc = new Arc(newNode.getId());
-				if (entry) {
-					arc.setAttributes("Yes", "bold", "green");
-					entry = false;
-				}
-				nodes[j].setFirstArc(arc); // 上结点指向break结点
-				breakStack.push(newNode.getId()); // break结点压栈
-				nodes[++j] = newNode; // 将break存入结点列表中
+				breakStack.push(nodes[j].getId()); // break结点压栈
 				continue;
 			}
 
@@ -206,12 +197,14 @@ public class Graph {
 					if (lastState.equals("do")) {
 						arc.setAttributes("", "dashed", "blue");
 					}
-					nodes[j].setFirstArc(arc);
-
+					if(breakStack.isEmpty()) {  //没有break跳转时连接后续结点
+						nodes[j].setFirstArc(arc);
+					}
+					
 					// if结点指向新结点
 					int ifNode = nodeStack.pop(); // 谓词结点出栈
 					arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
-					arc.setAttributes("No", "bold", "red");
+					arc.setAttributes("No", "bold", "red");  //false边
 					nodes[ifNode - 1].setFirstArc(arc);
 
 					nodes[++j] = newNode; // 加入新结点
@@ -257,7 +250,7 @@ public class Graph {
 					// 判断是否有直接的break跳转
 					if (!breakStack.isEmpty()) {
 						int breakNode = breakStack.pop();
-						arc = new Arc(newNode.getId()); // break指向while循环后面,break之前无出边
+						arc = new Arc(newNode.getId(), nodes[breakNode - 1].getFirstArc()); // break指向while循环后面,break之前有出边
 						arc.setAttributes("break", "dashed", "blue");
 						nodes[breakNode - 1].setFirstArc(arc);
 					}

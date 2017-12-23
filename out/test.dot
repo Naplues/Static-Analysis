@@ -2,26 +2,20 @@ digraph CFG {
  1  [shape = Msquare, color = green, label = "Start", ]
  2  [shape = ellipse, color = blue, label = "for(int i=0;i<5;i++)", ]
  3  [shape = diamond, color = blue, label = "if(i==3)", ]
- 4  [shape = box, color = blue, label = "a++;", ]
- 5  [shape = box, color = blue, label = "break1", ]
- 6  [shape = box, color = blue, label = "if-temp1", ]
- 7  [shape = box, color = blue, label = "while-temp1", ]
- 8  [shape = Msquare, color = pink, label = "End", ]
+ 4  [shape = box, color = blue, label = "if-temp1", ]
+ 5  [shape = box, color = blue, label = "while-temp1", ]
+ 6  [shape = Msquare, color = pink, label = "End", ]
  1  ->  2  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 2  ->  7  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
+ 2  ->  5  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
  2  ->  3  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
 
- 3  ->  6  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
- 3  ->  4  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 3  ->  5  [style = dashed, label="break", fillcolor = blue, color = blue, fontcolor = blue]
+ 3  ->  4  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
 
- 4  ->  5  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 4  ->  2  [style = dashed, label="", fillcolor = blue, color = blue, fontcolor = blue]
 
- 5  ->  7  [style = dashed, label="break", fillcolor = blue, color = blue, fontcolor = blue]
-
- 6  ->  2  [style = dashed, label="", fillcolor = blue, color = blue, fontcolor = blue]
-
- 7  ->  8  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 5  ->  6  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
 
 }
