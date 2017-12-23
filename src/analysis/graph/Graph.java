@@ -31,7 +31,6 @@ public class Graph {
 		int WHILE_TEMP_ID = 1;
 		int SWITCH_TEMP_NO = 1;
 		int RETURN_NO = 1;
-		int BREAK_NO = 1;
 		boolean isSwitch = false;
 		boolean isIfElse = false;
 		Stack<Integer> breakStack = new Stack<>();
@@ -180,6 +179,7 @@ public class Graph {
 			// if-else分支
 			if (structure.charAt(i) == '|') {
 				isIfElse = true;
+
 				ifStack.push(nodes[j].getId()); // if-else真分支结尾
 				continue;
 			}
@@ -197,21 +197,22 @@ public class Graph {
 					if (lastState.equals("do")) {
 						arc.setAttributes("", "dashed", "blue");
 					}
-					if(breakStack.isEmpty()) {  //没有break跳转时连接后续结点
+					// 没有break跳转时连接后续结点
+					if (breakStack.isEmpty()) {
 						nodes[j].setFirstArc(arc);
 					}
-					
+
 					// if结点指向新结点
 					int ifNode = nodeStack.pop(); // 谓词结点出栈
 					arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
-					arc.setAttributes("No", "bold", "red");  //false边
+					arc.setAttributes("No", "bold", "red"); // false边
 					nodes[ifNode - 1].setFirstArc(arc);
 
 					nodes[++j] = newNode; // 加入新结点
 					lastState = "if";
 
 				} else if (type.equals("else")) {
-					Node newNode = new Node("if-temp" + IF_TEMP_NO++);
+					Node newNode = new Node("ifelse-temp" + IF_TEMP_NO++);
 					nodeNumber++;
 					Arc arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
 
@@ -219,11 +220,14 @@ public class Graph {
 
 					nodeStack.pop(); // 谓词结点出栈
 					int ifNode = ifStack.pop();
-					// if真分支指向if-temp
-					arc = new Arc(newNode.getId());
-					nodes[ifNode - 1].setFirstArc(arc);
+					// if真分支指向ifelse-temp 当没有break跳转的时候
+					if(breakStack.isEmpty()) {
+						arc = new Arc(newNode.getId());
+						nodes[ifNode - 1].setFirstArc(arc);
+					}
+					
 
-					// if假分支指向if-temp
+					// if假分支指向ifelse-temp
 					arc = nodes[j].getFirstArc();
 					if (lastState.equals("do")) {
 						arc.setAttributes("", "dashed", "blue");
@@ -237,7 +241,6 @@ public class Graph {
 					// 循环体 尾部指向while结点
 					int whileNode = nodeStack.pop();
 					Arc arc = new Arc(whileNode, nodes[j].getFirstArc());
-					arc.setAttributes("", "dashed", "blue");
 					nodes[j].setFirstArc(arc);
 
 					// while指向循环体后面的结点,辅助结点

@@ -13,7 +13,7 @@ digraph CFG {
  3  ->  5  [style = dashed, label="break", fillcolor = blue, color = blue, fontcolor = blue]
  3  ->  4  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
 
- 4  ->  2  [style = dashed, label="", fillcolor = blue, color = blue, fontcolor = blue]
+ 4  ->  2  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
  5  ->  6  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
