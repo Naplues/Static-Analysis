@@ -1,13 +1,11 @@
 public void sample(int a, int b)
 {
-	if(a>0) {
-		a++;
-	}
-	else {
-		if(a==0) {
+	for(int i=0;i<5;i++) {
+		if(i==3)
+		{
 			a++;
+			break;
 		}
-		a++;
 	}
 
 }

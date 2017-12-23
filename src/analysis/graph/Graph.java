@@ -31,8 +31,10 @@ public class Graph {
 		int WHILE_TEMP_ID = 1;
 		int SWITCH_TEMP_NO = 1;
 		int RETURN_NO = 1;
+		int BREAK_NO = 1;
 		boolean isSwitch = false;
 		boolean isIfElse = false;
+		Stack<Integer> breakStack = new Stack<>();
 		Stack<Integer> nodeStack = new Stack<>();
 		Stack<String> typeStack = new Stack<>();
 		Stack<Integer> switchStack = new Stack<>();
@@ -83,7 +85,6 @@ public class Graph {
 			}
 			// return 结构
 			if (structure.charAt(i) == 'r') {
-				// return 模块
 				Node newNode = new Node("return" + RETURN_NO++); // 新建return结点
 				nodeNumber++;
 				Arc arc = new Arc(newNode.getId());
@@ -93,6 +94,21 @@ public class Graph {
 				lastState = "return";
 				continue;
 			}
+			// 循环中 break 结构
+			if (structure.charAt(i) == 'b') {
+				Node newNode = new Node("break" + BREAK_NO++);// 新建一个break结点
+				nodeNumber++;
+				Arc arc = new Arc(newNode.getId());
+				if (entry) {
+					arc.setAttributes("Yes", "bold", "green");
+					entry = false;
+				}
+				nodes[j].setFirstArc(arc); // 上结点指向break结点
+				breakStack.push(newNode.getId()); // break结点压栈
+				nodes[++j] = newNode; // 将break存入结点列表中
+				continue;
+			}
+
 			// 进入if/while结构
 			if (structure.charAt(i) == 'D') {
 				// 新建一个谓词结点，结点数目+1
@@ -143,7 +159,6 @@ public class Graph {
 			}
 			// switch谓词结点, 八边形
 			if (structure.charAt(i) == 'C' && structure.charAt(i + 1) == 'A') {
-
 				Node newNode = new Node(Structure.labels.get(k++), "octagon", "lightgreen");
 				nodeNumber++;
 
@@ -180,14 +195,14 @@ public class Graph {
 			/////////////////////////// 块结构尾部
 			if (structure.charAt(i) == ')') {
 				String type = typeStack.pop();
-				
+
 				// 获取谓词结点类型
 				if (type.equals("if")) {
 					// if结点
 					// 临时结点
 					Node newNode = new Node("if-temp" + IF_TEMP_NO++);
 					nodeNumber++;
-					Arc arc = new Arc(newNode.getId(),nodes[j].getFirstArc());
+					Arc arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
 					if (lastState.equals("do")) {
 						arc.setAttributes("", "dashed", "blue");
 					}
@@ -206,17 +221,17 @@ public class Graph {
 					Node newNode = new Node("if-temp" + IF_TEMP_NO++);
 					nodeNumber++;
 					Arc arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
-					
+
 					nodes[j].setFirstArc(arc);
 
-					nodeStack.pop(); // 谓词结点出栈 
+					nodeStack.pop(); // 谓词结点出栈
 					int ifNode = ifStack.pop();
-					//if真分支指向if-temp
-					arc = new Arc(newNode.getId());  
-					nodes[ifNode-1].setFirstArc(arc);
-					
-					//if假分支指向if-temp
-					arc =nodes[j].getFirstArc();
+					// if真分支指向if-temp
+					arc = new Arc(newNode.getId());
+					nodes[ifNode - 1].setFirstArc(arc);
+
+					// if假分支指向if-temp
+					arc = nodes[j].getFirstArc();
 					if (lastState.equals("do")) {
 						arc.setAttributes("", "dashed", "blue");
 					}
@@ -226,8 +241,7 @@ public class Graph {
 					lastState = "else";
 				} else if (type.equals("while")) {
 					// while结点
-
-					// 循环体尾部指向while结点
+					// 循环体 尾部指向while结点
 					int whileNode = nodeStack.pop();
 					Arc arc = new Arc(whileNode, nodes[j].getFirstArc());
 					arc.setAttributes("", "dashed", "blue");
@@ -239,6 +253,15 @@ public class Graph {
 					arc = new Arc(newNode.getId(), nodes[whileNode - 1].getFirstArc());
 					arc.setAttributes("No", "bold", "red");
 					nodes[whileNode - 1].setFirstArc(arc);
+
+					// 判断是否有直接的break跳转
+					if (!breakStack.isEmpty()) {
+						int breakNode = breakStack.pop();
+						arc = new Arc(newNode.getId()); // break指向while循环后面,break之前无出边
+						arc.setAttributes("break", "dashed", "blue");
+						nodes[breakNode - 1].setFirstArc(arc);
+					}
+
 					nodes[++j] = newNode;
 					lastState = "while";
 				} else if (type.equals("do")) {
