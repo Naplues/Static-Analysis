@@ -1,12 +1,11 @@
+
 public void sample(int a, int b)
 {
-	while() {
+	switch(a) {
+	case 1:
 		a++;
-		if(a) {
-			a++
-		}
-		break;
+	case 2:
+		a--;
 	}
-
 }
 

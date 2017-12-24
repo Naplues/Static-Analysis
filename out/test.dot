@@ -1,30 +1,20 @@
 digraph CFG {
  1  [shape = Msquare, color = green, label = "Start", ]
- 2  [shape = ellipse, color = blue, label = "while()", ]
+ 2  [shape = octagon, color = lightgreen, label = "switch(a)", ]
  3  [shape = box, color = blue, label = "a++;", ]
- 4  [shape = diamond, color = blue, label = "if(a)", ]
- 5  [shape = box, color = blue, label = "a++", ]
- 6  [shape = box, color = blue, label = "if-temp1", ]
- 7  [shape = box, color = blue, label = "break1", ]
- 8  [shape = box, color = blue, label = "while-temp1", ]
- 9  [shape = Msquare, color = pink, label = "End", ]
+ 4  [shape = box, color = blue, label = "a--;", ]
+ 5  [shape = box, color = blue, label = "switch-temp1", ]
+ 6  [shape = Msquare, color = pink, label = "End", ]
  1  ->  2  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 2  ->  8  [style = dashed, label="exit", fillcolor = blue, color = blue, fontcolor = blue]
- 2  ->  3  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 2  ->  4  [style = solid, label="case 2:", fillcolor = black, color = black, fontcolor = black]
+ 2  ->  3  [style = solid, label="case 1:", fillcolor = black, color = black, fontcolor = black]
 
- 3  ->  4  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 3  ->  5  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 4  ->  6  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
- 4  ->  5  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 4  ->  5  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
  5  ->  6  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
-
- 6  ->  7  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
-
- 7  ->  8  [style = dashed, label="break", fillcolor = blue, color = blue, fontcolor = blue]
-
- 8  ->  9  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
 
 }

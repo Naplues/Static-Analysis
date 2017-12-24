@@ -1,7 +1,5 @@
 package analysis.graph;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 
 import utils.FileHandle;
@@ -40,12 +38,12 @@ public class Graph {
 
 		Stack<Integer> breakStack = new Stack<>(); // 同层break栈
 		Stack<Stack<Integer>> allBreakStack = new Stack<>(); // 所有的break栈
-		Stack<Integer> continueStack = new Stack<>();
-		Stack<Stack<Integer>> allContinueStack = new Stack<>();
-		Stack<Integer> nodeStack = new Stack<>();
-		Stack<String> typeStack = new Stack<>();
-		Stack<Integer> switchStack = new Stack<>();
-		Stack<Integer> ifStack = new Stack<>();
+		Stack<Integer> continueStack = new Stack<>(); // 同层continue栈
+		Stack<Stack<Integer>> allContinueStack = new Stack<>();// 所有continue栈
+		Stack<Integer> nodeStack = new Stack<>(); // 谓词结点栈
+		Stack<String> typeStack = new Stack<>(); // 谓词类型栈
+		Stack<Integer> switchStack = new Stack<>(); // switch语句尾部栈
+		Stack<Integer> ifStack = new Stack<>(); //
 		Stack<Integer> returnStack = new Stack<>();
 		boolean entry = false;
 		String lastState = "";
@@ -74,11 +72,7 @@ public class Graph {
 					isIfElse = false;
 				} else {
 					Arc arc = new Arc(newNode.getId(), nodes[j].getFirstArc());// 边指向该结点
-					// if/while真分支入口
-					if (entry) {
-						arc.setAttributes("Yes", "bold", "green");
-						entry = false;
-					}
+					entry = setIfTrueBranchColor(arc, entry);
 					// 上个节点是do-while循环尾部
 					if (lastState.equals("do")) {
 						arc.setAttributes("", "dashed", "blue");
@@ -95,6 +89,7 @@ public class Graph {
 				Node newNode = new Node("return" + RETURN_NO++); // 新建return结点
 				nodeNumber++;
 				Arc arc = new Arc(newNode.getId());
+				entry = setIfTrueBranchColor(arc, entry); //设置if真分支线条颜色
 				nodes[j].setFirstArc(arc); // 上结点指向return结点
 				nodes[++j] = newNode;
 				returnStack.push(newNode.getId()); // return 结点入栈
@@ -115,11 +110,7 @@ public class Graph {
 				}
 
 				Arc arc = new Arc(newNode.getId());
-				// if/while真分支入口
-				if (entry) {
-					arc.setAttributes("Yes", "bold", "green");
-					entry = false;
-				}
+				entry = setIfTrueBranchColor(arc, entry); //设置if真分支线条颜色
 				nodes[j].setFirstArc(arc); // 上结点指向break结点
 				nodes[++j] = newNode;
 				breakStack.push(nodes[j].getId()); // break结点压栈
@@ -140,11 +131,7 @@ public class Graph {
 				}
 				// 指向continue的边
 				Arc arc = new Arc(newNode.getId());
-				// if/while真分支入口
-				if (entry) {
-					arc.setAttributes("Yes", "bold", "green");
-					entry = false;
-				}
+				entry = setIfTrueBranchColor(arc, entry); //设置if真分支线条颜色
 				nodes[j].setFirstArc(arc); // 上结点指向continue结点
 				nodes[++j] = newNode;
 				continueStack.push(nodes[j].getId()); // 结点压栈
@@ -172,11 +159,7 @@ public class Graph {
 					isIfElse = false;
 				}
 				Arc arc = new Arc(newNode.getId()); // 指向谓词结点
-				// if/while真分支入口
-				if (entry) {
-					arc.setAttributes("Yes", "bold", "green");
-					entry = false;
-				}
+				entry = setIfTrueBranchColor(arc, entry); //设置if真分支线条颜色
 				nodes[j].setFirstArc(arc);
 				nodeStack.push(newNode.getId());
 
@@ -253,8 +236,8 @@ public class Graph {
 
 				// 获取谓词结点类型
 				if (type.equals("if")) {
-					// if结点
-					// 临时结点
+					// if结点 临时结点
+
 					Node newNode = new Node("if-temp" + IF_TEMP_NO++);
 					nodeNumber++;
 					Arc arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
@@ -355,13 +338,13 @@ public class Graph {
 					arc.setAttributes("Yes", "bold", "green");
 					newNode.setFirstArc(arc);
 					nodes[++j] = newNode;
-					
-					//do-whiletemp结点
-					newNode = new Node("do-while-temp" + DO_WHILE_TEMP_NO++); 
+
+					// do-whiletemp结点
+					newNode = new Node("do-while-temp" + DO_WHILE_TEMP_NO++);
 					nodeNumber++;
 					arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
 					nodes[j].setFirstArc(arc);
-					
+
 					// 判断是否有直接的break跳转
 					while (!breakStack.isEmpty()) {
 						int breakNode = breakStack.pop(); // 取得break结点
@@ -376,8 +359,7 @@ public class Graph {
 					allBreakStack.pop();
 					if (!allBreakStack.isEmpty())
 						breakStack = allBreakStack.peek();
-					
-					
+
 					// 判断是否有continue跳转
 					while (!continueStack.isEmpty()) {
 						int continueNode = continueStack.pop();
@@ -392,7 +374,7 @@ public class Graph {
 					allContinueStack.pop();
 					if (!allContinueStack.isEmpty())
 						continueStack = allContinueStack.peek();
-					
+
 					nodes[++j] = newNode;
 					lastState = "do";
 
@@ -412,14 +394,7 @@ public class Graph {
 					nodes[++j] = newNode;
 					lastState = "switch";
 				}
-				//处理循环中break和continue的跳转
-				if(type.equals("do")||type.equals("while")) {
-					
-				}
 			}
-		}
-		if (nodeStack.isEmpty()) {
-			System.out.println("empty");
 		}
 
 		// 出口结点
@@ -434,10 +409,10 @@ public class Graph {
 		for (; !returnStack.isEmpty();) {
 			int returnNode = returnStack.pop();
 			arc = new Arc(nodes[nodeNumber - 1].getId()); // 指向出口
-			arc.setAttributes("Exit", "bold", "orange");
+			arc.setAttributes("Return", "bold", "orange");
 			nodes[returnNode - 1].setFirstArc(arc);
 		}
-		getUnreachableList();
+		getUnreachableList();  //去除不可达结点break continue造成
 		return graph;
 	}
 
@@ -468,6 +443,21 @@ public class Graph {
 	}
 
 	/**
+	 * 设置If真分支入口
+	 * @param arc
+	 * @param entry
+	 * @return
+	 */
+	public boolean setIfTrueBranchColor(Arc arc, boolean entry) {
+		// if/while真分支入口
+		if (entry) {
+			arc.setAttributes("Yes", "bold", "green");
+			return false;
+		}
+		return entry;
+	}
+	
+	/**
 	 * 生成dot格式文件,效率有待提高
 	 * 
 	 * @param simple
@@ -486,7 +476,7 @@ public class Graph {
 			string += "shape = " + nodes[i].getShape() + ", ";
 			// string += "style = filled, ";
 			string += "color = " + nodes[i].getFillColor() + ", ";
-			if (simple)  //简化输出图
+			if (simple) // 简化输出图
 				string += "label = \"" + nodes[i].getId() + "\", ";
 			else
 				string += "label = \"" + nodes[i].getInfo() + "\", ";
