@@ -55,6 +55,7 @@ public class Metrics {
 	 * @return
 	 */
 	public static int getNumberOfStatements(String structure) {
+		structure = Structure.toSimple(structure);// 使字符串简单化
 		if (Structure.getSubStructure(structure).size() == 1) {
 			int number = Structure.getProcedureNumber(structure); // 获取纯过程语句数目
 			if (number != -1)

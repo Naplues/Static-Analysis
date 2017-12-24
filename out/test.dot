@@ -1,16 +1,17 @@
 digraph CFG {
  1  [shape = Msquare, color = green, label = "Start", ]
  2  [shape = ellipse, color = blue, label = "for(int i=0;i<5;i++)", ]
- 3  [shape = diamond, color = blue, label = "if()", ]
+ 3  [shape = diamond, color = blue, label = "if(a>0)", ]
  4  [shape = box, color = blue, label = "a++;", ]
- 5  [shape = box, color = blue, label = "break1", ]
- 6  [shape = ellipse, color = blue, label = "for(;;)", ]
- 7  [shape = box, color = blue, label = "a++;", ]
- 8  [shape = diamond, color = blue, label = "if(a==2)", ]
- 9  [shape = box, color = blue, label = "break2", ]
- 10  [shape = box, color = blue, label = "if-temp1", ]
- 11  [shape = box, color = blue, label = "while-temp1", ]
- 12  [shape = box, color = blue, label = "break3", ]
+ 5  [shape = box, color = blue, label = "continue", ]
+ 6  [shape = box, color = blue, label = "if-temp1", ]
+ 7  [shape = ellipse, color = blue, label = "for(;;)", ]
+ 8  [shape = box, color = blue, label = "a++;", ]
+ 9  [shape = diamond, color = blue, label = "if(a==c)", ]
+ 10  [shape = box, color = blue, label = "continue", ]
+ 11  [shape = box, color = blue, label = "if-temp2", ]
+ 12  [shape = box, color = blue, label = "while-temp1", ]
+ 13  [shape = box, color = blue, label = "a++;", ]
  14  [shape = box, color = blue, label = "while-temp2", ]
  15  [shape = Msquare, color = pink, label = "End", ]
  1  ->  2  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
@@ -23,23 +24,25 @@ digraph CFG {
 
  4  ->  5  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 5  ->  14  [style = dashed, label="break", fillcolor = blue, color = blue, fontcolor = blue]
+ 5  ->  2  [style = dashed, label="continue", fillcolor = orange, color = orange, fontcolor = orange]
 
- 6  ->  11  [style = dashed, label="exit", fillcolor = blue, color = blue, fontcolor = blue]
- 6  ->  7  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 6  ->  7  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 7  ->  8  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 7  ->  12  [style = dashed, label="exit", fillcolor = blue, color = blue, fontcolor = blue]
+ 7  ->  8  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
 
- 8  ->  10  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
- 8  ->  9  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+ 8  ->  9  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 9  ->  11  [style = dashed, label="break", fillcolor = blue, color = blue, fontcolor = blue]
+ 9  ->  11  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
+ 9  ->  10  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
 
- 10  ->  6  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 10  ->  7  [style = dashed, label="continue", fillcolor = orange, color = orange, fontcolor = orange]
 
- 11  ->  12  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 11  ->  7  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
- 12  ->  14  [style = dashed, label="break", fillcolor = blue, color = blue, fontcolor = blue]
+ 12  ->  13  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+
+ 13  ->  2  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 
  14  ->  15  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
 

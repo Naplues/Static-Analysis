@@ -17,7 +17,7 @@ public class Main {
 		// 打印结构
 		System.out.println(structure);
 		// 打印结构标签
-		//Structure.printLabels();
+		Structure.printLabels();
 		// 构造控制流图
 		Graph graph = new Graph(structure);
 		// 输出控制流图

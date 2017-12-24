@@ -39,6 +39,8 @@ public class Graph {
 
 		Stack<Integer> breakStack = new Stack<>(); //同层break栈
 		Stack<Stack<Integer>> allBreakStack =new Stack<>();  //所有的break栈
+		Stack<Integer> continueStack = new Stack<>();
+		Stack<Stack<Integer>> allContinueStack =new Stack<>();
 		Stack<Integer> nodeStack = new Stack<>();
 		Stack<String> typeStack = new Stack<>();
 		Stack<Integer> switchStack = new Stack<>();
@@ -100,7 +102,7 @@ public class Graph {
 			}
 			// 循环中 break 结构
 			if (structure.charAt(i) == 'b') {
-				Node newNode = new Node("break" + BREAK_NO++); // 新建return结点
+				Node newNode = new Node("break" + BREAK_NO++); // 新建break结点
 				nodeNumber++;
 				//else分支
 				if (isIfElse) {
@@ -123,7 +125,32 @@ public class Graph {
 				//lastState = "break";
 				continue;
 			}
-
+			// continue 结构
+			if(structure.charAt(i)=='c') {
+				Node newNode = new Node("continue"); // 新建continue结点
+				nodeNumber++;
+				//else分支
+				if (isIfElse) {
+					int ifNode = nodeStack.peek();
+					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
+					arc.setAttributes("No", "bold", "red");
+					nodes[ifNode - 1].setFirstArc(arc);
+					isIfElse = false;
+				} 
+				//指向continue的边
+				Arc arc = new Arc(newNode.getId());
+				// if/while真分支入口
+				if (entry) {
+					arc.setAttributes("Yes", "bold", "green");
+					entry = false;
+				}
+				nodes[j].setFirstArc(arc); // 上结点指向continue结点
+				nodes[++j] = newNode;
+				continueStack.push(nodes[j].getId()); // 结点压栈
+				//lastState = "continue";
+				continue;
+			}
+			
 			// 进入if/while结构
 			if (structure.charAt(i) == 'D') {
 				// 新建一个谓词结点，结点数目+1
@@ -167,6 +194,9 @@ public class Graph {
 					breakStack = new Stack<>(); //新建break栈
 					allBreakStack.push(breakStack);
 					breakStack = allBreakStack.peek();
+					continueStack = new Stack<>();
+					allContinueStack.push(continueStack);
+					continueStack = allContinueStack.peek();
 				} else if (structure.charAt(i + 1) == '3') {
 					typeStack.push("do"); // do结点入栈
 					newNode.setInfo(Structure.labels.get(k++));
@@ -285,6 +315,22 @@ public class Graph {
 					allBreakStack.pop();
 					if(!allBreakStack.isEmpty())
 						breakStack = allBreakStack.peek();
+					
+					//判断是否有continue跳转
+					while(!continueStack.isEmpty()) {
+						int continueNode = continueStack.pop();
+						if (nodes[continueNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
+							arc = new Arc(whileNode); // break指向while循环后面
+						} else {
+							arc = new Arc(whileNode, nodes[continueNode - 1].getFirstArc()); // break指向while循环后面
+						}
+						arc.setAttributes("continue", "dashed", "orange");
+						nodes[continueNode - 1].setFirstArc(arc);
+					}
+					allContinueStack.pop();
+					if(!allContinueStack.isEmpty())
+						continueStack = allContinueStack.peek();
+					
 					nodes[++j] = newNode;
 					lastState = "while";
 				} else if (type.equals("do")) {

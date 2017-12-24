@@ -287,7 +287,7 @@ public class Structure {
 	public static int getProcedureNumber(String structure) {
 		int number = 0;
 		for (int i = 0; i < structure.length(); i++) {
-			if (structure.charAt(i) != 'P')
+			if (structure.charAt(i) != 'P' )
 				return -1;
 			number++;
 		}
@@ -338,7 +338,19 @@ public class Structure {
 			lines.set(i, line);
 		}
 	}
-
+	
+	/**
+	 * c,b 转化为P
+	 * @param string
+	 */
+	public static String toSimple(String string) {
+		StringBuilder builder = new StringBuilder(string);
+		for(int i=0;i<builder.length();i++) {
+			if(builder.charAt(i)=='c'||builder.charAt(i)=='b')
+				builder.setCharAt(i, 'P');
+		}
+		return builder.toString();
+	}
 	/**
 	 * 打印结构标签
 	 */
