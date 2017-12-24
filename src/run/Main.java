@@ -13,7 +13,7 @@ import utils.Structure;
 public class Main {
 	public static void main(String[] args) {
 		// 构造结构字符串
-		String structure = Structure.generateStructure("res/Test.java");
+		String structure = Structure.generateStructure("res/Test2.java");
 		// 打印结构
 		System.out.println(structure);
 		// 打印结构标签
