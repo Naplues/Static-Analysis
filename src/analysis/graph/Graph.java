@@ -31,6 +31,7 @@ public class Graph {
 		Graph graph = new Graph();
 		int IF_TEMP_NO = 1;
 		int WHILE_TEMP_ID = 1;
+		int DO_WHILE_TEMP_NO = 1;
 		int SWITCH_TEMP_NO = 1;
 		int RETURN_NO = 1;
 		int BREAK_NO = 1;
@@ -200,6 +201,12 @@ public class Graph {
 				} else if (structure.charAt(i + 1) == '3') {
 					typeStack.push("do"); // do结点入栈
 					newNode.setInfo(Structure.labels.get(k++));
+					breakStack = new Stack<>(); // 新建break栈
+					allBreakStack.push(breakStack);
+					breakStack = allBreakStack.peek();
+					continueStack = new Stack<>();
+					allContinueStack.push(continueStack);
+					continueStack = allContinueStack.peek();
 				}
 
 				nodes[++j] = newNode;
@@ -348,7 +355,45 @@ public class Graph {
 					arc.setAttributes("Yes", "bold", "green");
 					newNode.setFirstArc(arc);
 					nodes[++j] = newNode;
-
+					
+					//do-whiletemp结点
+					newNode = new Node("do-while-temp" + DO_WHILE_TEMP_NO++); 
+					nodeNumber++;
+					arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
+					nodes[j].setFirstArc(arc);
+					
+					// 判断是否有直接的break跳转
+					while (!breakStack.isEmpty()) {
+						int breakNode = breakStack.pop(); // 取得break结点
+						if (nodes[breakNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
+							arc = new Arc(newNode.getId()); // break指向while循环后面
+						} else {
+							arc = new Arc(newNode.getId(), nodes[breakNode - 1].getFirstArc()); // break指向while循环后面
+						}
+						arc.setAttributes("break", "dashed", "blue");
+						nodes[breakNode - 1].setFirstArc(arc);
+					}
+					allBreakStack.pop();
+					if (!allBreakStack.isEmpty())
+						breakStack = allBreakStack.peek();
+					
+					
+					// 判断是否有continue跳转
+					while (!continueStack.isEmpty()) {
+						int continueNode = continueStack.pop();
+						if (nodes[continueNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
+							arc = new Arc(doNode); // break指向while循环后面
+						} else {
+							arc = new Arc(doNode, nodes[continueNode - 1].getFirstArc()); // break指向while循环后面
+						}
+						arc.setAttributes("continue", "dashed", "orange");
+						nodes[continueNode - 1].setFirstArc(arc);
+					}
+					allContinueStack.pop();
+					if (!allContinueStack.isEmpty())
+						continueStack = allContinueStack.peek();
+					
+					nodes[++j] = newNode;
 					lastState = "do";
 
 				} else if (type.equals("switch")) {
@@ -367,6 +412,10 @@ public class Graph {
 					nodes[++j] = newNode;
 					lastState = "switch";
 				}
+				//处理循环中break和continue的跳转
+				if(type.equals("do")||type.equals("while")) {
+					
+				}
 			}
 		}
 		if (nodeStack.isEmpty()) {
@@ -377,7 +426,7 @@ public class Graph {
 		nodes[nodeNumber] = new Node("End", "Msquare", "pink", Node.SIMPLE_NODE);
 		Arc arc = new Arc(nodes[nodeNumber].getId(), nodes[nodeNumber - 1].getFirstArc());
 		if (lastState.equals("do")) {
-			arc.setAttributes("", "dashed", "blue");
+			arc.setAttributes("Exit", "dashed", "blue");
 		}
 		nodes[nodeNumber - 1].setFirstArc(arc);
 		nodeNumber++;

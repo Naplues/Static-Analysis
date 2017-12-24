@@ -25,7 +25,6 @@ public class Main {
 		//输出所有度量值
 		Metrics.outputAllMetrics(graph, structure);
 
-
 	}
 
 }
