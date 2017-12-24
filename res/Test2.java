@@ -1,13 +1,17 @@
 public void sample(int a, int b)
 {
 	for(int i=0;i<5;i++) {
-		if(i==3)
-		{
-			
+		if() {
+			a++;
 			break;
 		}
-		
-		
+		else {
+			for(;;) {
+				if(a==0) {	
+					break;
+				}
+			}	
+		}
 	}
 
 }

@@ -1,5 +1,7 @@
 package analysis.graph;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import utils.FileHandle;
@@ -31,9 +33,12 @@ public class Graph {
 		int WHILE_TEMP_ID = 1;
 		int SWITCH_TEMP_NO = 1;
 		int RETURN_NO = 1;
+		int BREAK_NO = 1;
 		boolean isSwitch = false;
 		boolean isIfElse = false;
-		Stack<Integer> breakStack = new Stack<>();
+
+		Stack<Integer> breakStack = new Stack<>(); //同层break栈
+		Stack<Stack<Integer>> allBreakStack =new Stack<>();  //所有的break栈
 		Stack<Integer> nodeStack = new Stack<>();
 		Stack<String> typeStack = new Stack<>();
 		Stack<Integer> switchStack = new Stack<>();
@@ -41,7 +46,7 @@ public class Graph {
 		Stack<Integer> returnStack = new Stack<>();
 		boolean entry = false;
 		String lastState = "";
-		nodes[0] = new Node("Start", "Msquare", "green"); // 开始结点
+		nodes[0] = new Node("Start", "Msquare", "green", Node.SIMPLE_NODE); // 开始结点
 		nodeNumber++;
 		// i: 字符串游标 j:结点游标 k:标签游标
 		for (int i = 0, j = 0, k = 0; i < structure.length(); i++) {
@@ -95,7 +100,19 @@ public class Graph {
 			}
 			// 循环中 break 结构
 			if (structure.charAt(i) == 'b') {
+				Node newNode = new Node("break" + BREAK_NO++); // 新建return结点
+				
+				nodeNumber++;
+				Arc arc = new Arc(newNode.getId());
+				// if/while真分支入口
+				if (entry) {
+					arc.setAttributes("Yes", "bold", "green");
+					entry = false;
+				}
+				nodes[j].setFirstArc(arc); // 上结点指向break结点
+				nodes[++j] = newNode;
 				breakStack.push(nodes[j].getId()); // break结点压栈
+				//lastState = "break";
 				continue;
 			}
 
@@ -129,16 +146,19 @@ public class Graph {
 
 				if (structure.charAt(i + 1) == '0') {
 					typeStack.push("if"); // if结点入栈
-					newNode.setAttributes(Structure.labels.get(k++), "diamond", "blue");// 菱形
+					newNode.setAttributes(Structure.labels.get(k++), "diamond", "blue", Node.IF_NODE);// 菱形
 					entry = true;
 				} else if (structure.charAt(i + 1) == '1') {
 					typeStack.push("else"); // else
-					newNode.setAttributes(Structure.labels.get(k++), "diamond", "blue");// 菱形
+					newNode.setAttributes(Structure.labels.get(k++), "diamond", "blue", Node.ELSE_NODE);// 菱形
 					entry = true;
 				} else if (structure.charAt(i + 1) == '2') {
 					typeStack.push("while");// while结点入栈
-					newNode.setAttributes(Structure.labels.get(k++), "ellipse", "blue");// 椭圆形
+					newNode.setAttributes(Structure.labels.get(k++), "ellipse", "blue", Node.WHILE_NODE);// 椭圆形
 					entry = true;
+					breakStack = new Stack<>(); //新建break栈
+					allBreakStack.push(breakStack);
+					breakStack = allBreakStack.peek();
 				} else if (structure.charAt(i + 1) == '3') {
 					typeStack.push("do"); // do结点入栈
 					newNode.setInfo(Structure.labels.get(k++));
@@ -149,7 +169,7 @@ public class Graph {
 			}
 			// switch谓词结点, 八边形
 			if (structure.charAt(i) == 'C' && structure.charAt(i + 1) == 'A') {
-				Node newNode = new Node(Structure.labels.get(k++), "octagon", "lightgreen");
+				Node newNode = new Node(Structure.labels.get(k++), "octagon", "lightgreen", Node.SWITCH_NODE);
 				nodeNumber++;
 
 				if (isIfElse) {
@@ -198,9 +218,8 @@ public class Graph {
 						arc.setAttributes("", "dashed", "blue");
 					}
 					// 没有break跳转时连接后续结点
-					if (breakStack.isEmpty()) {
-						nodes[j].setFirstArc(arc);
-					}
+
+					nodes[j].setFirstArc(arc);
 
 					// if结点指向新结点
 					int ifNode = nodeStack.pop(); // 谓词结点出栈
@@ -214,21 +233,16 @@ public class Graph {
 				} else if (type.equals("else")) {
 					Node newNode = new Node("ifelse-temp" + IF_TEMP_NO++);
 					nodeNumber++;
-					Arc arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
-
-					nodes[j].setFirstArc(arc);
 
 					nodeStack.pop(); // 谓词结点出栈
 					int ifNode = ifStack.pop();
 					// if真分支指向ifelse-temp 当没有break跳转的时候
-					if(breakStack.isEmpty()) {
-						arc = new Arc(newNode.getId());
-						nodes[ifNode - 1].setFirstArc(arc);
-					}
-					
 
-					// if假分支指向ifelse-temp
-					arc = nodes[j].getFirstArc();
+					Arc arc = new Arc(newNode.getId());
+					nodes[ifNode - 1].setFirstArc(arc);
+
+					// if假分支指向ifelse-temp 当没有break跳转时
+					arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
 					if (lastState.equals("do")) {
 						arc.setAttributes("", "dashed", "blue");
 					}
@@ -247,17 +261,23 @@ public class Graph {
 					Node newNode = new Node("while-temp" + WHILE_TEMP_ID++);
 					nodeNumber++;
 					arc = new Arc(newNode.getId(), nodes[whileNode - 1].getFirstArc());
-					arc.setAttributes("No", "bold", "red");
+					arc.setAttributes("exit", "dashed", "blue");
 					nodes[whileNode - 1].setFirstArc(arc);
 
 					// 判断是否有直接的break跳转
-					if (!breakStack.isEmpty()) {
-						int breakNode = breakStack.pop();
-						arc = new Arc(newNode.getId(), nodes[breakNode - 1].getFirstArc()); // break指向while循环后面,break之前有出边
+					while (!breakStack.isEmpty()) {
+						int breakNode = breakStack.pop(); // 取得break结点
+						if (nodes[breakNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
+							arc = new Arc(newNode.getId()); // break指向while循环后面
+						} else {
+							arc = new Arc(newNode.getId(), nodes[breakNode - 1].getFirstArc()); // break指向while循环后面
+						}
 						arc.setAttributes("break", "dashed", "blue");
 						nodes[breakNode - 1].setFirstArc(arc);
 					}
-
+					allBreakStack.pop();
+					if(!allBreakStack.isEmpty())
+						breakStack = allBreakStack.peek();
 					nodes[++j] = newNode;
 					lastState = "while";
 				} else if (type.equals("do")) {
@@ -301,7 +321,7 @@ public class Graph {
 		}
 
 		// 出口结点
-		nodes[nodeNumber] = new Node("End", "Msquare", "pink");
+		nodes[nodeNumber] = new Node("End", "Msquare", "pink", Node.SIMPLE_NODE);
 		Arc arc = new Arc(nodes[nodeNumber].getId(), nodes[nodeNumber - 1].getFirstArc());
 		if (lastState.equals("do")) {
 			arc.setAttributes("", "dashed", "blue");
@@ -315,8 +335,39 @@ public class Graph {
 			arc.setAttributes("Exit", "bold", "orange");
 			nodes[returnNode - 1].setFirstArc(arc);
 		}
+		getUnreachableList();
 		return graph;
 	}
+
+	/**
+	 * 获取不可达结点列表
+	 * 
+	 * @return
+	 */
+	public void getUnreachableList() {
+		boolean flag = false;
+		for (int i = 1; i < nodeNumber; i++) {
+			flag = false;
+			// i为目标结点索引,从非开始结点算起。初始时默认不可达
+			for (int j = 0; j < nodeNumber; j++) {
+				Arc arc = nodes[j].getFirstArc();
+				while (arc != null) {
+					int dest = arc.getDest();// 目标点
+					if ((dest - 1) == i) {
+						flag = true;
+						break;
+					}
+					arc = arc.getNextArc();
+				}
+			}
+
+			// 如果结点可达，就设置该节点不可达
+			nodes[i].setCanReach(flag);
+			if(!flag)
+				System.out.println(i);
+		}
+	}
+
 
 	/**
 	 * 生成dot格式文件,效率有待提高
@@ -327,6 +378,8 @@ public class Graph {
 		string += "digraph CFG {\n";
 		// 输出结点
 		for (int i = 0; i < nodeNumber; i++) {
+			if (!nodes[i].isCanReach())
+				continue;
 			string += " " + nodes[i].getId() + "  ";
 			string += "[";
 			string += "shape = " + nodes[i].getShape() + ", ";
@@ -337,6 +390,8 @@ public class Graph {
 		}
 		// 输出边
 		for (int i = 0; i < nodeNumber; i++) {
+			if (!nodes[i].isCanReach())
+				continue;
 			arc = nodes[i].getFirstArc();
 			for (; null != arc; arc = arc.getNextArc()) {
 				// 起点->终点 [label = "info", fontColor = color]

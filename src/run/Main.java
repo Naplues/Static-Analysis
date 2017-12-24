@@ -24,7 +24,8 @@ public class Main {
 		graph.outputGraph();
 		//输出所有度量值
 		Metrics.outputAllMetrics(graph, structure);
-		
+
+
 	}
 
 }
