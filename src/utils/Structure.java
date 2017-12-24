@@ -127,7 +127,7 @@ public class Structure {
 			}
 			// simple语句
 			if (!line.trim().startsWith("if") && !line.trim().startsWith("while")) {
-				if (type.peek().equals("catch")) {
+				if ( !type.isEmpty() && type.peek().equals("catch")) {
 					continue;
 				}
 				type.push("simple");

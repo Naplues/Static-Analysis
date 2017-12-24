@@ -37,10 +37,10 @@ public class Graph {
 		boolean isSwitch = false;
 		boolean isIfElse = false;
 
-		Stack<Integer> breakStack = new Stack<>(); //同层break栈
-		Stack<Stack<Integer>> allBreakStack =new Stack<>();  //所有的break栈
+		Stack<Integer> breakStack = new Stack<>(); // 同层break栈
+		Stack<Stack<Integer>> allBreakStack = new Stack<>(); // 所有的break栈
 		Stack<Integer> continueStack = new Stack<>();
-		Stack<Stack<Integer>> allContinueStack =new Stack<>();
+		Stack<Stack<Integer>> allContinueStack = new Stack<>();
 		Stack<Integer> nodeStack = new Stack<>();
 		Stack<String> typeStack = new Stack<>();
 		Stack<Integer> switchStack = new Stack<>();
@@ -104,15 +104,15 @@ public class Graph {
 			if (structure.charAt(i) == 'b') {
 				Node newNode = new Node("break" + BREAK_NO++); // 新建break结点
 				nodeNumber++;
-				//else分支
+				// else分支
 				if (isIfElse) {
 					int ifNode = nodeStack.peek();
 					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
 					arc.setAttributes("No", "bold", "red");
 					nodes[ifNode - 1].setFirstArc(arc);
 					isIfElse = false;
-				} 
-				
+				}
+
 				Arc arc = new Arc(newNode.getId());
 				// if/while真分支入口
 				if (entry) {
@@ -122,22 +122,22 @@ public class Graph {
 				nodes[j].setFirstArc(arc); // 上结点指向break结点
 				nodes[++j] = newNode;
 				breakStack.push(nodes[j].getId()); // break结点压栈
-				//lastState = "break";
+				// lastState = "break";
 				continue;
 			}
 			// continue 结构
-			if(structure.charAt(i)=='c') {
+			if (structure.charAt(i) == 'c') {
 				Node newNode = new Node("continue"); // 新建continue结点
 				nodeNumber++;
-				//else分支
+				// else分支
 				if (isIfElse) {
 					int ifNode = nodeStack.peek();
 					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
 					arc.setAttributes("No", "bold", "red");
 					nodes[ifNode - 1].setFirstArc(arc);
 					isIfElse = false;
-				} 
-				//指向continue的边
+				}
+				// 指向continue的边
 				Arc arc = new Arc(newNode.getId());
 				// if/while真分支入口
 				if (entry) {
@@ -147,10 +147,10 @@ public class Graph {
 				nodes[j].setFirstArc(arc); // 上结点指向continue结点
 				nodes[++j] = newNode;
 				continueStack.push(nodes[j].getId()); // 结点压栈
-				//lastState = "continue";
+				// lastState = "continue";
 				continue;
 			}
-			
+
 			// 进入if/while结构
 			if (structure.charAt(i) == 'D') {
 				// 新建一个谓词结点，结点数目+1
@@ -191,7 +191,7 @@ public class Graph {
 					typeStack.push("while");// while结点入栈
 					newNode.setAttributes(Structure.labels.get(k++), "ellipse", "blue", Node.WHILE_NODE);// 椭圆形
 					entry = true;
-					breakStack = new Stack<>(); //新建break栈
+					breakStack = new Stack<>(); // 新建break栈
 					allBreakStack.push(breakStack);
 					breakStack = allBreakStack.peek();
 					continueStack = new Stack<>();
@@ -209,7 +209,7 @@ public class Graph {
 			if (structure.charAt(i) == 'C' && structure.charAt(i + 1) == 'A') {
 				Node newNode = new Node(Structure.labels.get(k++), "octagon", "lightgreen", Node.SWITCH_NODE);
 				nodeNumber++;
-				//else 分支
+				// else 分支
 				if (isIfElse) {
 					int ifNode = nodeStack.peek();
 					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
@@ -313,11 +313,11 @@ public class Graph {
 						nodes[breakNode - 1].setFirstArc(arc);
 					}
 					allBreakStack.pop();
-					if(!allBreakStack.isEmpty())
+					if (!allBreakStack.isEmpty())
 						breakStack = allBreakStack.peek();
-					
-					//判断是否有continue跳转
-					while(!continueStack.isEmpty()) {
+
+					// 判断是否有continue跳转
+					while (!continueStack.isEmpty()) {
 						int continueNode = continueStack.pop();
 						if (nodes[continueNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
 							arc = new Arc(whileNode); // break指向while循环后面
@@ -328,9 +328,9 @@ public class Graph {
 						nodes[continueNode - 1].setFirstArc(arc);
 					}
 					allContinueStack.pop();
-					if(!allContinueStack.isEmpty())
+					if (!allContinueStack.isEmpty())
 						continueStack = allContinueStack.peek();
-					
+
 					nodes[++j] = newNode;
 					lastState = "while";
 				} else if (type.equals("do")) {
@@ -413,19 +413,18 @@ public class Graph {
 					arc = arc.getNextArc();
 				}
 			}
-
 			// 如果结点可达，就设置该节点不可达
 			nodes[i].setCanReach(flag);
-			if(!flag)
-				System.out.println(i);
 		}
 	}
 
-
 	/**
 	 * 生成dot格式文件,效率有待提高
+	 * 
+	 * @param simple
+	 * @return
 	 */
-	public String outputGraph() {
+	public String outputGraph(boolean simple) {
 		String string = "";
 		Arc arc = null;
 		string += "digraph CFG {\n";
@@ -438,7 +437,11 @@ public class Graph {
 			string += "shape = " + nodes[i].getShape() + ", ";
 			// string += "style = filled, ";
 			string += "color = " + nodes[i].getFillColor() + ", ";
-			string += "label = \"" + nodes[i].getInfo() + "\", ";
+			if (simple)  //简化输出图
+				string += "label = \"" + nodes[i].getId() + "\", ";
+			else
+				string += "label = \"" + nodes[i].getInfo() + "\", ";
+
 			string += "]\n";
 		}
 		// 输出边
