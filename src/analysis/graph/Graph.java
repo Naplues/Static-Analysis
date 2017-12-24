@@ -19,6 +19,31 @@ public class Graph {
 	private int arcNumber;// 边数目
 	private static int MAX_NODES_NUM = 2000;
 
+	////////////////////// 构图辅助数据结构
+	int IF_TEMP_NO = 1;
+	int WHILE_TEMP_ID = 1;
+	int DO_WHILE_TEMP_NO = 1;
+	int SWITCH_TEMP_NO = 1;
+	int RETURN_NO = 1;
+	int BREAK_NO = 1;
+	boolean isSwitch = false;
+	boolean isIfElse = false;
+
+	Stack<Integer> breakStack = new Stack<>(); // 同层break栈
+	Stack<Stack<Integer>> allBreakStack = new Stack<>(); // 所有的break栈
+	Stack<Integer> continueStack = new Stack<>(); // 同层continue栈
+	Stack<Stack<Integer>> allContinueStack = new Stack<>();// 所有continue栈
+	Stack<Integer> nodeStack = new Stack<>(); // 谓词结点栈
+	Stack<String> typeStack = new Stack<>(); // 谓词类型栈
+	Stack<Integer> switchStack = new Stack<>(); // switch语句尾部栈
+	Stack<Integer> ifStack = new Stack<>(); //
+	Stack<Integer> returnStack = new Stack<>();
+	boolean entry = false;
+	String lastState = "";
+
+	int i = 0, j = 0, k = 0;
+	/////////////////////////////////////////////
+
 	/**
 	 * 构造图结构
 	 * 
@@ -27,30 +52,12 @@ public class Graph {
 	 */
 	public Graph constructGraph(String structure) {
 		Graph graph = new Graph();
-		int IF_TEMP_NO = 1;
-		int WHILE_TEMP_ID = 1;
-		int DO_WHILE_TEMP_NO = 1;
-		int SWITCH_TEMP_NO = 1;
-		int RETURN_NO = 1;
-		int BREAK_NO = 1;
-		boolean isSwitch = false;
-		boolean isIfElse = false;
 
-		Stack<Integer> breakStack = new Stack<>(); // 同层break栈
-		Stack<Stack<Integer>> allBreakStack = new Stack<>(); // 所有的break栈
-		Stack<Integer> continueStack = new Stack<>(); // 同层continue栈
-		Stack<Stack<Integer>> allContinueStack = new Stack<>();// 所有continue栈
-		Stack<Integer> nodeStack = new Stack<>(); // 谓词结点栈
-		Stack<String> typeStack = new Stack<>(); // 谓词类型栈
-		Stack<Integer> switchStack = new Stack<>(); // switch语句尾部栈
-		Stack<Integer> ifStack = new Stack<>(); //
-		Stack<Integer> returnStack = new Stack<>();
-		boolean entry = false;
-		String lastState = "";
 		nodes[0] = new Node("Start", "Msquare", "green", Node.SIMPLE_NODE); // 开始结点
 		nodeNumber++;
 		// i: 字符串游标 j:结点游标 k:标签游标
-		for (int i = 0, j = 0, k = 0; i < structure.length(); i++) {
+		for (; i < structure.length(); i++) {
+
 			// 顺序语句,j指向当前最后的结点
 			if (structure.charAt(i) == 'P') {
 				Node newNode = new Node(); // 新建一个结点,结点数目+1
@@ -72,7 +79,7 @@ public class Graph {
 					isIfElse = false;
 				} else {
 					Arc arc = new Arc(newNode.getId(), nodes[j].getFirstArc());// 边指向该结点
-					entry = setIfTrueBranchColor(arc, entry);
+					setIfTrueBranchColor(arc);
 					// 上个节点是do-while循环尾部
 					if (lastState.equals("do")) {
 						arc.setAttributes("", "dashed", "blue");
@@ -84,58 +91,19 @@ public class Graph {
 				lastState = "";
 				continue;
 			}
-			// return 结构
-			if (structure.charAt(i) == 'r') {
-				Node newNode = new Node("return" + RETURN_NO++); // 新建return结点
-				nodeNumber++;
-				Arc arc = new Arc(newNode.getId());
-				entry = setIfTrueBranchColor(arc, entry); //设置if真分支线条颜色
-				nodes[j].setFirstArc(arc); // 上结点指向return结点
-				nodes[++j] = newNode;
-				returnStack.push(newNode.getId()); // return 结点入栈
-				lastState = "return";
-				continue;
-			}
-			// 循环中 break 结构
-			if (structure.charAt(i) == 'b') {
-				Node newNode = new Node("break" + BREAK_NO++); // 新建break结点
-				nodeNumber++;
-				// else分支
-				if (isIfElse) {
-					int ifNode = nodeStack.peek();
-					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
-					arc.setAttributes("No", "bold", "red");
-					nodes[ifNode - 1].setFirstArc(arc);
-					isIfElse = false;
-				}
 
-				Arc arc = new Arc(newNode.getId());
-				entry = setIfTrueBranchColor(arc, entry); //设置if真分支线条颜色
-				nodes[j].setFirstArc(arc); // 上结点指向break结点
-				nodes[++j] = newNode;
-				breakStack.push(nodes[j].getId()); // break结点压栈
-				// lastState = "break";
+			if (structure.charAt(i) == 'r') {
+				returnStatment();// return 结构
 				continue;
 			}
-			// continue 结构
+
+			if (structure.charAt(i) == 'b') {
+				breakStatment();// 循环中 break 结构
+				continue;
+			}
+
 			if (structure.charAt(i) == 'c') {
-				Node newNode = new Node("continue"); // 新建continue结点
-				nodeNumber++;
-				// else分支
-				if (isIfElse) {
-					int ifNode = nodeStack.peek();
-					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
-					arc.setAttributes("No", "bold", "red");
-					nodes[ifNode - 1].setFirstArc(arc);
-					isIfElse = false;
-				}
-				// 指向continue的边
-				Arc arc = new Arc(newNode.getId());
-				entry = setIfTrueBranchColor(arc, entry); //设置if真分支线条颜色
-				nodes[j].setFirstArc(arc); // 上结点指向continue结点
-				nodes[++j] = newNode;
-				continueStack.push(nodes[j].getId()); // 结点压栈
-				// lastState = "continue";
+				continueStatment();// continue 结构
 				continue;
 			}
 
@@ -159,7 +127,7 @@ public class Graph {
 					isIfElse = false;
 				}
 				Arc arc = new Arc(newNode.getId()); // 指向谓词结点
-				entry = setIfTrueBranchColor(arc, entry); //设置if真分支线条颜色
+				setIfTrueBranchColor(arc); // 设置if真分支线条颜色
 				nodes[j].setFirstArc(arc);
 				nodeStack.push(newNode.getId());
 
@@ -191,7 +159,6 @@ public class Graph {
 					allContinueStack.push(continueStack);
 					continueStack = allContinueStack.peek();
 				}
-
 				nodes[++j] = newNode;
 				continue;
 			}
@@ -210,7 +177,6 @@ public class Graph {
 					Arc arc = new Arc(newNode.getId()); // 指向谓词结点
 					nodes[j].setFirstArc(arc);
 				}
-
 				nodeStack.push(newNode.getId()); // switch结点入栈
 				typeStack.push("switch");
 				nodes[++j] = newNode;
@@ -226,173 +192,32 @@ public class Graph {
 			// if-else分支
 			if (structure.charAt(i) == '|') {
 				isIfElse = true;
-
 				ifStack.push(nodes[j].getId()); // if-else真分支结尾
 				continue;
 			}
 			/////////////////////////// 块结构尾部
 			if (structure.charAt(i) == ')') {
 				String type = typeStack.pop();
-
 				// 获取谓词结点类型
 				if (type.equals("if")) {
-					// if结点 临时结点
-
-					Node newNode = new Node("if-temp" + IF_TEMP_NO++);
-					nodeNumber++;
-					Arc arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
-					if (lastState.equals("do")) {
-						arc.setAttributes("", "dashed", "blue");
-					}
-					// 没有break跳转时连接后续结点
-
-					nodes[j].setFirstArc(arc);
-
-					// if结点指向新结点
-					int ifNode = nodeStack.pop(); // 谓词结点出栈
-					arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
-					arc.setAttributes("No", "bold", "red"); // false边
-					nodes[ifNode - 1].setFirstArc(arc);
-
-					nodes[++j] = newNode; // 加入新结点
-					lastState = "if";
-
-				} else if (type.equals("else")) {
-					Node newNode = new Node("ifelse-temp" + IF_TEMP_NO++);
-					nodeNumber++;
-
-					nodeStack.pop(); // 谓词结点出栈
-					int ifNode = ifStack.pop();
-					// if真分支指向ifelse-temp 当没有break跳转的时候
-
-					Arc arc = new Arc(newNode.getId());
-					nodes[ifNode - 1].setFirstArc(arc);
-
-					// if假分支指向ifelse-temp 当没有break跳转时
-					arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
-					if (lastState.equals("do")) {
-						arc.setAttributes("", "dashed", "blue");
-					}
-					nodes[j].setFirstArc(arc);
-
-					nodes[++j] = newNode; // 加入新结点
-					lastState = "else";
-				} else if (type.equals("while")) {
-					// while结点
-					// 循环体 尾部指向while结点
-					int whileNode = nodeStack.pop();
-					Arc arc = new Arc(whileNode, nodes[j].getFirstArc());
-					nodes[j].setFirstArc(arc);
-
-					// while指向循环体后面的结点,辅助结点
-					Node newNode = new Node("while-temp" + WHILE_TEMP_ID++);
-					nodeNumber++;
-					arc = new Arc(newNode.getId(), nodes[whileNode - 1].getFirstArc());
-					arc.setAttributes("exit", "dashed", "blue");
-					nodes[whileNode - 1].setFirstArc(arc);
-
-					// 判断是否有直接的break跳转
-					while (!breakStack.isEmpty()) {
-						int breakNode = breakStack.pop(); // 取得break结点
-						if (nodes[breakNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
-							arc = new Arc(newNode.getId()); // break指向while循环后面
-						} else {
-							arc = new Arc(newNode.getId(), nodes[breakNode - 1].getFirstArc()); // break指向while循环后面
-						}
-						arc.setAttributes("break", "dashed", "blue");
-						nodes[breakNode - 1].setFirstArc(arc);
-					}
-					allBreakStack.pop();
-					if (!allBreakStack.isEmpty())
-						breakStack = allBreakStack.peek();
-
-					// 判断是否有continue跳转
-					while (!continueStack.isEmpty()) {
-						int continueNode = continueStack.pop();
-						if (nodes[continueNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
-							arc = new Arc(whileNode); // break指向while循环后面
-						} else {
-							arc = new Arc(whileNode, nodes[continueNode - 1].getFirstArc()); // break指向while循环后面
-						}
-						arc.setAttributes("continue", "dashed", "orange");
-						nodes[continueNode - 1].setFirstArc(arc);
-					}
-					allContinueStack.pop();
-					if (!allContinueStack.isEmpty())
-						continueStack = allContinueStack.peek();
-
-					nodes[++j] = newNode;
-					lastState = "while";
-				} else if (type.equals("do")) {
-					// do结点
-					// 循环体后继结点
-					Node newNode = new Node(Structure.labels.get(k++));
-					newNode.setShape("ellipse"); // do循环椭圆
-					nodeNumber++;
-					Arc arc = new Arc(newNode.getId());
-					nodes[j].setFirstArc(arc);
-
-					// 循环体尾部指向do结点
-					int doNode = nodeStack.pop();
-					arc = new Arc(doNode, newNode.getFirstArc());
-					arc.setAttributes("Yes", "bold", "green");
-					newNode.setFirstArc(arc);
-					nodes[++j] = newNode;
-
-					// do-whiletemp结点
-					newNode = new Node("do-while-temp" + DO_WHILE_TEMP_NO++);
-					nodeNumber++;
-					arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
-					nodes[j].setFirstArc(arc);
-
-					// 判断是否有直接的break跳转
-					while (!breakStack.isEmpty()) {
-						int breakNode = breakStack.pop(); // 取得break结点
-						if (nodes[breakNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
-							arc = new Arc(newNode.getId()); // break指向while循环后面
-						} else {
-							arc = new Arc(newNode.getId(), nodes[breakNode - 1].getFirstArc()); // break指向while循环后面
-						}
-						arc.setAttributes("break", "dashed", "blue");
-						nodes[breakNode - 1].setFirstArc(arc);
-					}
-					allBreakStack.pop();
-					if (!allBreakStack.isEmpty())
-						breakStack = allBreakStack.peek();
-
-					// 判断是否有continue跳转
-					while (!continueStack.isEmpty()) {
-						int continueNode = continueStack.pop();
-						if (nodes[continueNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
-							arc = new Arc(doNode); // break指向while循环后面
-						} else {
-							arc = new Arc(doNode, nodes[continueNode - 1].getFirstArc()); // break指向while循环后面
-						}
-						arc.setAttributes("continue", "dashed", "orange");
-						nodes[continueNode - 1].setFirstArc(arc);
-					}
-					allContinueStack.pop();
-					if (!allContinueStack.isEmpty())
-						continueStack = allContinueStack.peek();
-
-					nodes[++j] = newNode;
-					lastState = "do";
-
-				} else if (type.equals("switch")) {
-					// switch
-					// 将switch结点全部退出
-					Node newNode = new Node("switch-temp" + SWITCH_TEMP_NO++);
-					nodeNumber++;
-					nodeStack.pop(); // 退出switch
-
-					for (; !switchStack.isEmpty();) {
-						Arc newArc = new Arc(newNode.getId());
-						nodes[switchStack.pop() - 1].setFirstArc(newArc);
-					}
-					Arc newArc = new Arc(newNode.getId());
-					nodes[j].setFirstArc(newArc);
-					nodes[++j] = newNode;
-					lastState = "switch";
+					endIf();
+					continue;
+				}
+				if (type.equals("else")) {
+					endElse();
+					continue;
+				}
+				if (type.equals("while")) {
+					endWhile();
+					continue;
+				}
+				if (type.equals("do")) {
+					endDo();
+					continue;
+				}
+				if (type.equals("switch")) {
+					endSwitch(); // switch结束
+					continue;
 				}
 			}
 		}
@@ -412,8 +237,253 @@ public class Graph {
 			arc.setAttributes("Return", "bold", "orange");
 			nodes[returnNode - 1].setFirstArc(arc);
 		}
-		getUnreachableList();  //去除不可达结点break continue造成
+		getUnreachableList(); // 去除不可达结点break continue造成
 		return graph;
+	}
+
+	//////// 子过程
+
+	/**
+	 * break 语句处理
+	 */
+	public void breakStatment() {
+		Node newNode = new Node("break" + BREAK_NO++); // 新建break结点
+		nodeNumber++;
+		// else分支
+		if (isIfElse) {
+			int ifNode = nodeStack.peek();
+			Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
+			arc.setAttributes("No", "bold", "red");
+			nodes[ifNode - 1].setFirstArc(arc);
+			isIfElse = false;
+		}
+
+		Arc arc = new Arc(newNode.getId());
+		setIfTrueBranchColor(arc); // 设置if真分支线条颜色
+		nodes[j].setFirstArc(arc); // 上结点指向break结点
+		nodes[++j] = newNode;
+		breakStack.push(nodes[j].getId()); // break结点压栈
+		// lastState = "break";
+	}
+
+	/**
+	 * continue 语句处理
+	 */
+	public void continueStatment() {
+		Node newNode = new Node("continue"); // 新建continue结点
+		nodeNumber++;
+		// else分支
+		if (isIfElse) {
+			int ifNode = nodeStack.peek();
+			Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
+			arc.setAttributes("No", "bold", "red");
+			nodes[ifNode - 1].setFirstArc(arc);
+			isIfElse = false;
+		}
+		// 指向continue的边
+		Arc arc = new Arc(newNode.getId());
+		setIfTrueBranchColor(arc); // 设置if真分支线条颜色
+		nodes[j].setFirstArc(arc); // 上结点指向continue结点
+		nodes[++j] = newNode;
+		continueStack.push(nodes[j].getId()); // 结点压栈
+		// lastState = "continue";
+	}
+
+	/**
+	 * return 语句处理
+	 */
+	public void returnStatment() {
+		Node newNode = new Node("return" + RETURN_NO++); // 新建return结点
+		nodeNumber++;
+		Arc arc = new Arc(newNode.getId());
+		setIfTrueBranchColor(arc); // 设置if真分支线条颜色
+		nodes[j].setFirstArc(arc); // 上结点指向return结点
+		nodes[++j] = newNode;
+		returnStack.push(newNode.getId()); // return 结点入栈
+		lastState = "return";
+	}
+
+	/**
+	 * if 单分支结束
+	 */
+	public void endIf() {
+		// if结点 临时结点
+		Node newNode = new Node("if-temp" + IF_TEMP_NO++);
+		nodeNumber++;
+		Arc arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
+		if (lastState.equals("do")) {
+			arc.setAttributes("", "dashed", "blue");
+		}
+		// 没有break跳转时连接后续结点
+
+		nodes[j].setFirstArc(arc);
+
+		// if结点指向新结点
+		int ifNode = nodeStack.pop(); // 谓词结点出栈
+		arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
+		arc.setAttributes("No", "bold", "red"); // false边
+		nodes[ifNode - 1].setFirstArc(arc);
+
+		nodes[++j] = newNode; // 加入新结点
+		lastState = "if";
+	}
+
+	/**
+	 * else分支结束
+	 */
+	public void endElse() {
+		Node newNode = new Node("ifelse-temp" + IF_TEMP_NO++);
+		nodeNumber++;
+
+		nodeStack.pop(); // 谓词结点出栈
+		int ifNode = ifStack.pop();
+		// if真分支指向ifelse-temp 当没有break跳转的时候
+
+		Arc arc = new Arc(newNode.getId());
+		nodes[ifNode - 1].setFirstArc(arc);
+
+		// if假分支指向ifelse-temp 当没有break跳转时
+		arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
+		if (lastState.equals("do")) {
+			arc.setAttributes("", "dashed", "blue");
+		}
+		nodes[j].setFirstArc(arc);
+
+		nodes[++j] = newNode; // 加入新结点
+		lastState = "else";
+	}
+
+	/**
+	 * while循环结束
+	 */
+	public void endWhile() {
+		// while结点
+		// 循环体 尾部指向while结点
+		int whileNode = nodeStack.pop();
+		Arc arc = new Arc(whileNode, nodes[j].getFirstArc());
+		nodes[j].setFirstArc(arc);
+
+		// while指向循环体后面的结点,辅助结点
+		Node newNode = new Node("while-temp" + WHILE_TEMP_ID++);
+		nodeNumber++;
+		arc = new Arc(newNode.getId(), nodes[whileNode - 1].getFirstArc());
+		arc.setAttributes("exit", "dashed", "blue");
+		nodes[whileNode - 1].setFirstArc(arc);
+
+		// 判断是否有直接的break跳转
+		while (!breakStack.isEmpty()) {
+			int breakNode = breakStack.pop(); // 取得break结点
+			if (nodes[breakNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
+				arc = new Arc(newNode.getId()); // break指向while循环后面
+			} else {
+				arc = new Arc(newNode.getId(), nodes[breakNode - 1].getFirstArc()); // break指向while循环后面
+			}
+			arc.setAttributes("break", "dashed", "blue");
+			nodes[breakNode - 1].setFirstArc(arc);
+		}
+		allBreakStack.pop();
+		if (!allBreakStack.isEmpty())
+			breakStack = allBreakStack.peek();
+
+		// 判断是否有continue跳转
+		while (!continueStack.isEmpty()) {
+			int continueNode = continueStack.pop();
+			if (nodes[continueNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
+				arc = new Arc(whileNode); // break指向while循环后面
+			} else {
+				arc = new Arc(whileNode, nodes[continueNode - 1].getFirstArc()); // break指向while循环后面
+			}
+			arc.setAttributes("continue", "dashed", "orange");
+			nodes[continueNode - 1].setFirstArc(arc);
+		}
+		allContinueStack.pop();
+		if (!allContinueStack.isEmpty())
+			continueStack = allContinueStack.peek();
+
+		nodes[++j] = newNode;
+		lastState = "while";
+	}
+
+	/**
+	 * do循环结束
+	 */
+	public void endDo() {
+		// do结点
+		// 循环体后继结点
+		Node newNode = new Node(Structure.labels.get(k++));
+		newNode.setShape("ellipse"); // do循环椭圆
+		nodeNumber++;
+		Arc arc = new Arc(newNode.getId());
+		nodes[j].setFirstArc(arc);
+
+		// 循环体尾部指向do结点
+		int doNode = nodeStack.pop();
+		arc = new Arc(doNode, newNode.getFirstArc());
+		arc.setAttributes("Yes", "bold", "green");
+		newNode.setFirstArc(arc);
+		nodes[++j] = newNode;
+
+		// do-whiletemp结点
+		newNode = new Node("do-while-temp" + DO_WHILE_TEMP_NO++);
+		nodeNumber++;
+		arc = new Arc(newNode.getId(), nodes[j].getFirstArc());
+		nodes[j].setFirstArc(arc);
+
+		// 判断是否有直接的break跳转
+		while (!breakStack.isEmpty()) {
+			int breakNode = breakStack.pop(); // 取得break结点
+			if (nodes[breakNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
+				arc = new Arc(newNode.getId()); // break指向while循环后面
+			} else {
+				arc = new Arc(newNode.getId(), nodes[breakNode - 1].getFirstArc()); // break指向while循环后面
+			}
+			arc.setAttributes("break", "dashed", "blue");
+			nodes[breakNode - 1].setFirstArc(arc);
+		}
+		allBreakStack.pop();
+		if (!allBreakStack.isEmpty())
+			breakStack = allBreakStack.peek();
+
+		// 判断是否有continue跳转
+		while (!continueStack.isEmpty()) {
+			int continueNode = continueStack.pop();
+			if (nodes[continueNode - 1].getType() == Node.SIMPLE_NODE) { // 简单结点无其他出边
+				arc = new Arc(doNode); // break指向while循环后面
+			} else {
+				arc = new Arc(doNode, nodes[continueNode - 1].getFirstArc()); // break指向while循环后面
+			}
+			arc.setAttributes("continue", "dashed", "orange");
+			nodes[continueNode - 1].setFirstArc(arc);
+		}
+		allContinueStack.pop();
+		if (!allContinueStack.isEmpty())
+			continueStack = allContinueStack.peek();
+
+		nodes[++j] = newNode;
+		lastState = "do";
+	}
+
+	/**
+	 * switch结束
+	 * 
+	 * @param j
+	 *            结点游标
+	 */
+	public void endSwitch() {
+		// switch
+		// 将switch结点全部退出
+		Node newNode = new Node("switch-temp" + SWITCH_TEMP_NO++);
+		nodeNumber++;
+		nodeStack.pop(); // 退出switch
+
+		for (; !switchStack.isEmpty();) {
+			Arc newArc = new Arc(newNode.getId());
+			nodes[switchStack.pop() - 1].setFirstArc(newArc);
+		}
+		Arc newArc = new Arc(newNode.getId());
+		nodes[j].setFirstArc(newArc);
+		nodes[++j] = newNode;
+		lastState = "switch";
 	}
 
 	/**
@@ -444,19 +514,20 @@ public class Graph {
 
 	/**
 	 * 设置If真分支入口
+	 * 
 	 * @param arc
 	 * @param entry
 	 * @return
 	 */
-	public boolean setIfTrueBranchColor(Arc arc, boolean entry) {
+	public void setIfTrueBranchColor(Arc arc) {
 		// if/while真分支入口
 		if (entry) {
 			arc.setAttributes("Yes", "bold", "green");
-			return false;
+			entry = false;
 		}
-		return entry;
+
 	}
-	
+
 	/**
 	 * 生成dot格式文件,效率有待提高
 	 * 
