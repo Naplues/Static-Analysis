@@ -101,8 +101,16 @@ public class Graph {
 			// 循环中 break 结构
 			if (structure.charAt(i) == 'b') {
 				Node newNode = new Node("break" + BREAK_NO++); // 新建return结点
-				
 				nodeNumber++;
+				//else分支
+				if (isIfElse) {
+					int ifNode = nodeStack.peek();
+					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
+					arc.setAttributes("No", "bold", "red");
+					nodes[ifNode - 1].setFirstArc(arc);
+					isIfElse = false;
+				} 
+				
 				Arc arc = new Arc(newNode.getId());
 				// if/while真分支入口
 				if (entry) {
@@ -171,9 +179,8 @@ public class Graph {
 			if (structure.charAt(i) == 'C' && structure.charAt(i + 1) == 'A') {
 				Node newNode = new Node(Structure.labels.get(k++), "octagon", "lightgreen", Node.SWITCH_NODE);
 				nodeNumber++;
-
+				//else 分支
 				if (isIfElse) {
-					// else分支
 					int ifNode = nodeStack.peek();
 					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
 					arc.setAttributes("No", "bold", "red");

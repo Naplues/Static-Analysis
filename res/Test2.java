@@ -7,10 +7,12 @@ public void sample(int a, int b)
 		}
 		else {
 			for(;;) {
-				if(a==0) {	
+				a++;
+				if(a==2) {
 					break;
 				}
-			}	
+			}
+			break;
 		}
 	}
 
