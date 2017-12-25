@@ -598,7 +598,7 @@ public class Graph {
 			string += "\n";
 		}
 		string += "}";
-		FileHandle.writeStringToFile("out/test.dot", string); // 写入文件
+		FileHandle.writeStringToFile("out/" + path + ".dot", string); // 写入文件
 		Graph.drawGraph(path); // 画出文件
 		return string;
 	}
@@ -607,7 +607,7 @@ public class Graph {
 	 * 画出CFG图
 	 */
 	public static void drawGraph(String filePath) {
-		String cmd = "cmd /c start  dot -Tsvg out/test.dot -o out/test.svg";
+		String cmd = "cmd /c start  dot -Tsvg out/" + filePath + ".dot -o out/" + filePath + ".svg";
 		try {
 			Process ps = Runtime.getRuntime().exec(cmd);
 			ps.waitFor();

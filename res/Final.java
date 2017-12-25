@@ -24,4 +24,3 @@ public void sample(int a, int b)
 		}
 	}
 }
-

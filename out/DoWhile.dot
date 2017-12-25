@@ -1,0 +1,30 @@
+digraph CFG {
+ 1  [shape = Msquare, color = green, label = "Start", ]
+ 2  [shape = box, color = blue, label = "do", ]
+ 3  [shape = box, color = blue, label = "a++;", ]
+ 4  [shape = diamond, color = blue, label = "if(a%5 == 0)", ]
+ 5  [shape = box, color = blue, label = "break1", ]
+ 6  [shape = box, color = blue, label = "if-temp1", ]
+ 7  [shape = ellipse, color = blue, label = "while(a<100);", ]
+ 8  [shape = box, color = blue, label = "do-while-temp1", ]
+ 9  [shape = Msquare, color = pink, label = "End", ]
+ 1  ->  2  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+
+ 2  ->  3  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+
+ 3  ->  4  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+
+ 4  ->  6  [style = bold, label="No", fillcolor = red, color = red, fontcolor = red]
+ 4  ->  5  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+
+ 5  ->  8  [style = dashed, label="break", fillcolor = blue, color = blue, fontcolor = blue]
+
+ 6  ->  7  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+
+ 7  ->  8  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+ 7  ->  2  [style = bold, label="Yes", fillcolor = green, color = green, fontcolor = green]
+
+ 8  ->  9  [style = dashed, label="Exit", fillcolor = blue, color = blue, fontcolor = blue]
+
+
+}

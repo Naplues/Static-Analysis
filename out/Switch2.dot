@@ -1,0 +1,30 @@
+digraph CFG {
+ 1  [shape = Msquare, color = green, label = "Start", ]
+ 2  [shape = octagon, color = lightgreen, label = "switch(a)", ]
+ 3  [shape = box, color = blue, label = "a++;", ]
+ 4  [shape = box, color = blue, label = "a--;", ]
+ 5  [shape = box, color = blue, label = "break1", ]
+ 6  [shape = box, color = blue, label = "a=0;", ]
+ 7  [shape = box, color = blue, label = "break2", ]
+ 8  [shape = box, color = blue, label = "switch-temp1", ]
+ 9  [shape = Msquare, color = pink, label = "End", ]
+ 1  ->  2  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+
+ 2  ->  6  [style = solid, label="case 3:", fillcolor = black, color = black, fontcolor = black]
+ 2  ->  4  [style = solid, label="case 2:", fillcolor = black, color = black, fontcolor = black]
+ 2  ->  3  [style = solid, label="case 1:", fillcolor = black, color = black, fontcolor = black]
+
+ 3  ->  4  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+
+ 4  ->  5  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+
+ 5  ->  8  [style = dashed, label="break", fillcolor = blue, color = blue, fontcolor = blue]
+
+ 6  ->  7  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+
+ 7  ->  8  [style = dashed, label="break", fillcolor = blue, color = blue, fontcolor = blue]
+
+ 8  ->  9  [style = solid, label="", fillcolor = black, color = black, fontcolor = black]
+
+
+}
