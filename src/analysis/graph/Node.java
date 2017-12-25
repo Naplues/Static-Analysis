@@ -7,23 +7,24 @@ package analysis.graph;
  * 
  */
 public class Node {
+	//关键属性
+	private int id; // 结点标识
+	private Arc firstArc; // 连出的第一条边
+
+	// 附加属性
+	private String info;      // 结点显示信息
+	private String shape;     // 结点形状
+	private String fillColor; // 填充颜色
+	private int type;         // 结点类型
+	private boolean canReach; //结点是否可达
+	
+	private static int ID = 1;
 	public static int SIMPLE_NODE = 0;
 	public static int IF_NODE = 1;
 	public static int WHILE_NODE = 2;
 	public static int ELSE_NODE = 3;
 	public static int SWITCH_NODE = 4;
-
-	private int id; // 结点标识
-	private Arc firstArc; // 连出的第一条边
-
-	// 结点属性
-	private String info; // 结点信息
-	private String shape; // 结点形状
-	private String fillColor; // 填充颜色
-	private int type;// 结点类型
-	private boolean canReach;
-	private static int ID = 1;
-
+	
 	public Node() {
 		this.id = Node.ID++;
 		this.info = "Node " + this.id;

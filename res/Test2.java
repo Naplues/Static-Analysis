@@ -1,18 +1,10 @@
 
 
-public void sample(int a, int b)
+public void sample(int a)
 {
-	
-	switch(a) {
-	case 1:
-		a+=1;
-		break;
-	case 2:
-		a+=2;
-		
-	case 3:
-		a+=3;
-		
+	a++;
+	if(a<0) {
+		a++;
 	}
 	
 }

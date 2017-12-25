@@ -13,7 +13,7 @@ import utils.Structure;
  */
 public class Graph {
 	// 结点
-	private String name;
+	private String name; // 图名称
 	private Node[] nodes; // 结点列表
 	private int nodeNumber;// 结点数目
 	private int arcNumber;// 边数目
@@ -26,22 +26,24 @@ public class Graph {
 	int SWITCH_TEMP_NO = 1;
 	int RETURN_NO = 1;
 	int BREAK_NO = 1;
-	boolean isSwitch = false;
-	boolean isIfElse = false;
 
+	// 结点状态栈
+	Stack<Integer> nodeStack = new Stack<>(); // 谓词结点栈
+	Stack<String> typeStack = new Stack<>(); // 谓词类型栈
 	Stack<Integer> breakStack = new Stack<>(); // 同层break栈
 	Stack<Stack<Integer>> allBreakStack = new Stack<>(); // 所有的break栈
 	Stack<Integer> continueStack = new Stack<>(); // 同层continue栈
 	Stack<Stack<Integer>> allContinueStack = new Stack<>();// 所有continue栈
-	Stack<Integer> nodeStack = new Stack<>(); // 谓词结点栈
-	Stack<String> typeStack = new Stack<>(); // 谓词类型栈
 	Stack<Integer> switchStack = new Stack<>(); // switch语句尾部栈
-	int noBreakSwitchNode = -1; // 未带break的switch语句尾部结点
 	Stack<Integer> ifStack = new Stack<>(); //
-	Stack<Integer> returnStack = new Stack<>();
-	boolean entry = false;
-	String lastState = "";
+	Stack<Integer> returnStack = new Stack<>();// return结点栈
 
+	// 一些状态变量
+	int noBreakSwitchNode = -1; // 未带break的switch语句尾部结点
+	boolean entry = false; // 真分支入口
+	String lastState = "";
+	boolean isSwitch = false;
+	boolean isIfElse = false;
 	int i = 0, j = 0, k = 0;
 	/////////////////////////////////////////////
 
@@ -89,7 +91,6 @@ public class Graph {
 				// structure.charAt(i - 1) == ',' && structure.charAt(i - 2) != 'b'
 				if (noBreakSwitchNode != -1) {
 					Arc arc = new Arc(newNode.getId(), nodes[noBreakSwitchNode].getFirstArc());
-					System.out.println(nodes[noBreakSwitchNode].getInfo());
 					nodes[noBreakSwitchNode].setFirstArc(arc);
 				}
 				newNode.setInfo(Structure.labels.get(k++));
@@ -474,6 +475,7 @@ public class Graph {
 			isIfElse = false;
 		} else {
 			Arc arc = new Arc(newNode.getId()); // 指向谓词结点
+			setIfTrueBranchColor(arc); // 设置if真分支线条颜色
 			nodes[j].setFirstArc(arc);
 		}
 		nodeStack.push(newNode.getId()); // switch结点入栈
@@ -495,9 +497,11 @@ public class Graph {
 		// 将所有分支尾部是break的switch分支尾部结点指向出口
 		for (; !switchStack.isEmpty();) {
 			Arc newArc = new Arc(newNode.getId());
+			newArc.setAttributes("break", "dashed", "blue");
 			nodes[switchStack.pop() - 1].setFirstArc(newArc);
 		}
 		Arc newArc = new Arc(newNode.getId());
+		newArc.setAttributes("break", "dashed", "blue");
 		nodes[j].setFirstArc(newArc);
 		nodes[++j] = newNode;
 		lastState = "switch";
@@ -551,10 +555,12 @@ public class Graph {
 	 * @param simple
 	 * @return
 	 */
-	public String outputGraph(boolean simple) {
+	public String outputGraph(boolean simple, boolean isHorizontal, String path) {
 		String string = "";
 		Arc arc = null;
 		string += "digraph CFG {\n";
+		if (isHorizontal)
+			string += "rankdir = LR";
 		// 输出结点
 		for (int i = 0; i < nodeNumber; i++) {
 			if (!nodes[i].isCanReach())
@@ -593,7 +599,7 @@ public class Graph {
 		}
 		string += "}";
 		FileHandle.writeStringToFile("out/test.dot", string); // 写入文件
-		Graph.drawGraph(""); // 画出文件
+		Graph.drawGraph(path); // 画出文件
 		return string;
 	}
 
@@ -601,14 +607,12 @@ public class Graph {
 	 * 画出CFG图
 	 */
 	public static void drawGraph(String filePath) {
-		String cmd = "cmd /c start  test.bat";
+		String cmd = "cmd /c start  dot -Tsvg out/test.dot -o out/test.svg";
 		try {
 			Process ps = Runtime.getRuntime().exec(cmd);
 			ps.waitFor();
 			int i = ps.exitValue();
-			if (i == 0) {
-				System.out.println("导出成功");
-			} else {
+			if (i != 0) {
 				System.out.println("导出失败");
 			}
 		} catch (Exception ioe) {

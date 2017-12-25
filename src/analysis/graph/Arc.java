@@ -6,16 +6,18 @@ package analysis.graph;
  *
  */
 public class Arc {
-	private static int ID = 0; //自增ID
+	//关键属性
 	private int id; // 边标识
 	private int dest; // 边指向的结点
 	private Arc nextArc; // 边的下一条边
 
-	// 边属性
+	// 附加属性
 	private String info; // 边信息
 	private String color; // 边的颜色
 	private String style; // 边的样式 bold
-
+	
+	
+	private static int ID = 0; //自增ID
 	public Arc() {
 		this.id = Arc.ID++;
 		this.nextArc = null;
