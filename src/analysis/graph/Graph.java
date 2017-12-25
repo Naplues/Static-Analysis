@@ -36,6 +36,7 @@ public class Graph {
 	Stack<Integer> nodeStack = new Stack<>(); // 谓词结点栈
 	Stack<String> typeStack = new Stack<>(); // 谓词类型栈
 	Stack<Integer> switchStack = new Stack<>(); // switch语句尾部栈
+	int noBreakSwitchNode = -1; // 未带break的switch语句尾部结点
 	Stack<Integer> ifStack = new Stack<>(); //
 	Stack<Integer> returnStack = new Stack<>();
 	boolean entry = false;
@@ -62,14 +63,12 @@ public class Graph {
 			if (structure.charAt(i) == 'P') {
 				Node newNode = new Node(); // 新建一个结点,结点数目+1
 				nodeNumber++;
-
 				if (isSwitch) {
-					int switchNode = nodeStack.peek();
+					int switchNode = nodeStack.peek(); // 取出switch结点
 					Arc arc = new Arc(newNode.getId(), nodes[switchNode - 1].getFirstArc());
 					arc.setInfo(Structure.labels.get(k++));
 					nodes[switchNode - 1].setFirstArc(arc);
 					isSwitch = false;
-
 				} else if (isIfElse) {
 					// else分支
 					int ifNode = nodeStack.peek();
@@ -81,32 +80,38 @@ public class Graph {
 					Arc arc = new Arc(newNode.getId(), nodes[j].getFirstArc());// 边指向该结点
 					setIfTrueBranchColor(arc);
 					// 上个节点是do-while循环尾部
-					if (lastState.equals("do")) {
+					if (lastState.equals("do"))
 						arc.setAttributes("", "dashed", "blue");
-					}
+
 					nodes[j].setFirstArc(arc);
+				}
+				// 之前为switch分支结尾并且未带break
+				// structure.charAt(i - 1) == ',' && structure.charAt(i - 2) != 'b'
+				if (noBreakSwitchNode != -1) {
+					Arc arc = new Arc(newNode.getId(), nodes[noBreakSwitchNode].getFirstArc());
+					System.out.println(nodes[noBreakSwitchNode].getInfo());
+					nodes[noBreakSwitchNode].setFirstArc(arc);
 				}
 				newNode.setInfo(Structure.labels.get(k++));
 				nodes[++j] = newNode;
 				lastState = "";
 				continue;
 			}
-
+			// return 结构
 			if (structure.charAt(i) == 'r') {
-				returnStatment();// return 结构
+				returnStatment();
 				continue;
 			}
-
+			// 循环中 break 结构
 			if (structure.charAt(i) == 'b') {
-				breakStatment();// 循环中 break 结构
+				breakStatment();
 				continue;
 			}
-
+			// continue 结构
 			if (structure.charAt(i) == 'c') {
-				continueStatment();// continue 结构
+				continueStatment();
 				continue;
 			}
-
 			// 进入if/while结构
 			if (structure.charAt(i) == 'D') {
 				// 新建一个谓词结点，结点数目+1
@@ -119,6 +124,7 @@ public class Graph {
 					arc.setInfo(Structure.labels.get(k++));
 					nodes[switchNode - 1].setFirstArc(arc);
 					isSwitch = false;
+
 				} else if (isIfElse) {
 					int ifNode = nodeStack.peek();
 					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
@@ -164,29 +170,20 @@ public class Graph {
 			}
 			// switch谓词结点, 八边形
 			if (structure.charAt(i) == 'C' && structure.charAt(i + 1) == 'A') {
-				Node newNode = new Node(Structure.labels.get(k++), "octagon", "lightgreen", Node.SWITCH_NODE);
-				nodeNumber++;
-				// else 分支
-				if (isIfElse) {
-					int ifNode = nodeStack.peek();
-					Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
-					arc.setAttributes("No", "bold", "red");
-					nodes[ifNode - 1].setFirstArc(arc);
-					isIfElse = false;
-				} else {
-					Arc arc = new Arc(newNode.getId()); // 指向谓词结点
-					nodes[j].setFirstArc(arc);
-				}
-				nodeStack.push(newNode.getId()); // switch结点入栈
-				typeStack.push("switch");
-				nodes[++j] = newNode;
-				isSwitch = true;
+				startSwitch(); // switch开始
 				continue;
 			}
 			// switch结点
 			if (structure.charAt(i) == ',') {
 				isSwitch = true;
-				switchStack.push(nodes[j].getId());
+				// 将break结尾的switch加入switch栈
+				if (structure.charAt(i - 1) == 'b') {
+					switchStack.push(nodes[j].getId());
+					noBreakSwitchNode = -1; // 该点不起作用
+				} else {
+					noBreakSwitchNode = j;
+				}
+
 				continue;
 			}
 			// if-else分支
@@ -195,24 +192,24 @@ public class Graph {
 				ifStack.push(nodes[j].getId()); // if-else真分支结尾
 				continue;
 			}
-			/////////////////////////// 块结构尾部
+			/////////////////////////// 块结构结束////////////////
 			if (structure.charAt(i) == ')') {
 				String type = typeStack.pop();
 				// 获取谓词结点类型
 				if (type.equals("if")) {
-					endIf();
+					endIf(); // if分支结束
 					continue;
 				}
 				if (type.equals("else")) {
-					endElse();
+					endElse(); // else分支结束
 					continue;
 				}
 				if (type.equals("while")) {
-					endWhile();
+					endWhile(); // while循环结束
 					continue;
 				}
 				if (type.equals("do")) {
-					endDo();
+					endDo(); // do-while循环结束
 					continue;
 				}
 				if (type.equals("switch")) {
@@ -221,7 +218,6 @@ public class Graph {
 				}
 			}
 		}
-
 		// 出口结点
 		nodes[nodeNumber] = new Node("End", "Msquare", "pink", Node.SIMPLE_NODE);
 		Arc arc = new Arc(nodes[nodeNumber].getId(), nodes[nodeNumber - 1].getFirstArc());
@@ -241,7 +237,7 @@ public class Graph {
 		return graph;
 	}
 
-	//////// 子过程
+	// ************子过程**********
 
 	/**
 	 * break 语句处理
@@ -464,18 +460,39 @@ public class Graph {
 	}
 
 	/**
+	 * switch开始
+	 */
+	public void startSwitch() {
+		Node newNode = new Node(Structure.labels.get(k++), "octagon", "lightgreen", Node.SWITCH_NODE);
+		nodeNumber++;
+		// else 分支
+		if (isIfElse) {
+			int ifNode = nodeStack.peek();
+			Arc arc = new Arc(newNode.getId(), nodes[ifNode - 1].getFirstArc());
+			arc.setAttributes("No", "bold", "red");
+			nodes[ifNode - 1].setFirstArc(arc);
+			isIfElse = false;
+		} else {
+			Arc arc = new Arc(newNode.getId()); // 指向谓词结点
+			nodes[j].setFirstArc(arc);
+		}
+		nodeStack.push(newNode.getId()); // switch结点入栈
+		typeStack.push("switch");
+		nodes[++j] = newNode;
+		isSwitch = true;
+	}
+
+	/**
 	 * switch结束
 	 * 
-	 * @param j
-	 *            结点游标
 	 */
 	public void endSwitch() {
 		// switch
 		// 将switch结点全部退出
 		Node newNode = new Node("switch-temp" + SWITCH_TEMP_NO++);
 		nodeNumber++;
-		nodeStack.pop(); // 退出switch
-
+		nodeStack.pop(); // 退出switch结点
+		// 将所有分支尾部是break的switch分支尾部结点指向出口
 		for (; !switchStack.isEmpty();) {
 			Arc newArc = new Arc(newNode.getId());
 			nodes[switchStack.pop() - 1].setFirstArc(newArc);
