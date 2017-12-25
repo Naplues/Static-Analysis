@@ -12,7 +12,7 @@ import utils.Structure;
  */
 public class Main {
 	public static void main(String[] args) {
-		String filepath = "Final";
+		String filepath = "While";
 		// 构造结构字符串
 		String structure = Structure.generateStructure("res/" + filepath + ".java");
 		// 打印结构

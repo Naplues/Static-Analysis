@@ -599,15 +599,17 @@ public class Graph {
 		}
 		string += "}";
 		FileHandle.writeStringToFile("out/" + path + ".dot", string); // 写入文件
-		Graph.drawGraph(path); // 画出文件
+		Graph.drawGraph(path, "svg"); // 画出文件
+		Graph.drawGraph(path, "jpg"); // 画出文件
+		Graph.drawGraph(path, "png"); // 画出文件
 		return string;
 	}
 
 	/**
 	 * 画出CFG图
 	 */
-	public static void drawGraph(String filePath) {
-		String cmd = "cmd /c start  dot -Tsvg out/" + filePath + ".dot -o out/" + filePath + ".svg";
+	public static void drawGraph(String filePath, String type) {
+		String cmd = "cmd /c start  dot -T" + type + " out/" + filePath + ".dot -o out/" + filePath + "." + type;
 		try {
 			Process ps = Runtime.getRuntime().exec(cmd);
 			ps.waitFor();
